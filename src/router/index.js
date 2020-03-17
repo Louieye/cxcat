@@ -51,7 +51,7 @@ export const constantRoutes = [
       path: 'dashboard',
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      meta: { title: '首页', icon: 'dashboard' }
     }]
   },
 
@@ -60,34 +60,74 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/example/table',
     name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    meta: { title: '课堂管理', icon: 'form' },
     children: [
       {
         path: 'table',
         name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        component: () => import('@/views/course-manage/reply'),
+        meta: { title: '课程反馈', icon: 'example' }
       },
       {
         path: 'tree',
         name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        component: () => import('@/views/course-manage/test'),
+        meta: { title: '小测验', icon: 'example' }
       }
     ]
   },
 
   {
-    path: '/form',
+    path: '/course-table',
     component: Layout,
+    redirect: '/course-table/all-course',
+    name: 'course',
+    meta: { title: '课表管理', icon: 'table' },
+    children: [
+      {
+        path: 'all-course',
+        name: 'all-course',
+        component: () => import('@/views/course-table/all-course'),
+        meta: { title: '全部课表', icon: 'example' }
+      },
+      {
+        path: 'course-edit',
+        name: 'course-edit',
+        component: () => import('@/views/course-table/course-edit'),
+        meta: { title: '课表管理', icon: 'example' }
+      }
+    ]
+  },
+
+  {
+    path: '/works',
+    component: Layout,
+    redirect: '/works/index',
+    name: 'works',
+    meta: { title: '作品管理', icon: 'table' },
     children: [
       {
         path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        name: 'works-all',
+        component: () => import('@/views/works/index'),
+        meta: { title: '作品管理', icon: 'example' }
+      },
+      {
+        path: 'upload',
+        name: 'works-upload',
+        component: () => import('@/views/works/upload'),
+        meta: { title: '作品上传', icon: 'example' }
       }
     ]
+  },
+
+  {
+    path: '/reply',
+    component: Layout,
+    redirect: '/reply/index',
+    name: 'reply',
+    component: () => import('@/views/reply/index'),
+    meta : { title: '反馈系统', icon: 'example' }
   },
 
   {
