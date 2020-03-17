@@ -13,7 +13,7 @@ const userInfo = [{
   username: 'admin',
   password: '123456',
   token: 'admin-token'
-},{
+}, {
   id: '2',
   username: 'editor',
   password: '123456',
@@ -49,7 +49,7 @@ const tableData = [{
   name: '张三',
   address: '1号教室',
   course: 'scratch'
-},{
+}, {
   id: '1',
   date: '2020-03-17 13:30',
   name: '张三',
@@ -62,19 +62,19 @@ const tableData = [{
   name: '张三',
   address: '1号教室',
   course: 'scratch'
-},{
+}, {
   id: '2',
   date: '2020-03-17 13:30',
   name: '李四',
   address: '2号教室',
   course: 'scratch'
-},{
+}, {
   id: '2',
   date: '2020-03-17 13:30',
   name: '李四',
   address: '2号教室',
   course: 'scratch'
-},{
+}, {
   id: '2',
   date: '2020-03-17 13:30',
   name: '李四',
@@ -98,21 +98,20 @@ export default [
           message: 'Account and password are incorrect.'
         }
       }
-      const index = userInfo.findIndex((item)=>{
-        return item.username == username
+      const index = userInfo.findIndex((item) => {
+        return item.username === username
       })
-      if(config.body.password == userInfo[index].password){
+      if (config.body.password === userInfo[index].password) {
         return {
           code: 20000,
           data: token
         }
-      }else{
-        return{
+      } else {
+        return {
           code: 6024,
           message: '用户名或密码错误'
         }
       }
-      
     }
   },
 
@@ -151,25 +150,25 @@ export default [
     }
   },
 
-  //获取课程表
+  // 获取课程表
   {
     url: '/vue-admin-template/home/table-data',
     type: 'get',
     response: config => {
-      let { token } = config.headers
-      let index = userInfo.findIndex( item =>{
-        return item.token == token
+      const { token } = config.headers
+      const index = userInfo.findIndex(item => {
+        return item.token === token
       })
-      if(index != -1){
+      if (index !== -1) {
         const id = userInfo[index].id
         const data = []
-        tableData.forEach( item =>{
-          if(item.id == id){
+        tableData.forEach(item => {
+          if (item.id === id) {
             data.push(item)
           }
         })
         return {
-          code:20000,
+          code: 20000,
           data: data
         }
       }
@@ -180,18 +179,18 @@ export default [
     }
   },
 
-  //获取头部数据
+  // 获取头部数据
   {
     url: '/vue-admin-template/home/header-data',
     type: 'get',
-    response: config =>{
-      let {token} = config.headers
-      if(token){
+    response: config => {
+      const { token } = config.headers
+      if (token) {
         return {
           code: 20000,
           data: headerData
         }
-      }else{
+      } else {
         return {
           code: 20000,
           data: '-1'

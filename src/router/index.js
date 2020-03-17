@@ -125,9 +125,12 @@ export const constantRoutes = [
     path: '/reply',
     component: Layout,
     redirect: '/reply/index',
-    name: 'reply',
-    component: () => import('@/views/reply/index'),
-    meta : { title: '反馈系统', icon: 'example' }
+    children: [{
+      path: 'index',
+      name: 'reply',
+      component: () => import('@/views/reply/index'),
+      meta: { title: '反馈系统', icon: 'example' }
+    }]
   },
 
   {
