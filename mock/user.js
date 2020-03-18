@@ -82,6 +82,7 @@ const tableData = [{
   course: 'scratch'
 }]
 
+
 export default [
   // user login
   {
@@ -120,7 +121,7 @@ export default [
     url: '/vue-admin-template/user/info\.*',
     type: 'get',
     response: config => {
-      const { token } = config.query
+      const { token } = config.headers
       const info = users[token]
 
       // mock error
@@ -133,7 +134,7 @@ export default [
 
       return {
         code: 20000,
-        data: token
+        data: info
       }
     }
   },
@@ -194,6 +195,25 @@ export default [
         return {
           code: 20000,
           data: '-1'
+        }
+      }
+    }
+  },
+  // 获取路由
+  {
+    url: '/vue-admin-template/user/getMenu',
+    type: 'get',
+    response: config => {
+      const { token } = config.headers
+      if(token){
+        return {
+          code: 20000,
+          data: users[token].roles
+        }
+      }else {
+        return {
+          code: 20000,
+          message: '路由菜单获取失败'
         }
       }
     }

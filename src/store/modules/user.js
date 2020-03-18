@@ -1,12 +1,14 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, getInfo, getMenu } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
+import { constantRoutes } from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    routes: constantRoutes
   }
 }
 
@@ -24,6 +26,9 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_ROUTES: (state,routes)=> {
+    state.routes = constantRoutes.concat(routes)
   }
 }
 
@@ -84,6 +89,17 @@ const actions = {
       removeToken() // must remove  token  first
       commit('RESET_STATE')
       resolve()
+    })
+  },
+  //权限路由
+  addMenu({ commit, state }, routes) {
+    return new Promise((resolve, reject) => {
+      // getMenu().then((response) => {
+      //   resolve(response)
+      // }).catch(error => {
+      //   reject(error)
+      // })
+      commit('SET_ROUTES',routes)
     })
   }
 }

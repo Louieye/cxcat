@@ -189,21 +189,20 @@ export const constantRoutes = [
         meta: { title: 'menu2' }
       }
     ]
-  },
-
+  }
+]
+//权限路由
+export const asyncRoutes = [
   {
     path: 'external-link',
     component: Layout,
     children: [
       {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
+        path: 'https://www.bilibili.com',
+        meta: { title: '权限管理', icon: 'password' }
       }
     ]
-  },
-
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  }
 ]
 
 const createRouter = () => new Router({
