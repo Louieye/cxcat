@@ -76,29 +76,6 @@ export const constantRoutes = [
       }
     ]
   },
-
-  {
-    path: '/course-table',
-    component: Layout,
-    redirect: '/course-table/all-course',
-    name: 'course',
-    meta: { title: '课表管理', icon: 'table' },
-    children: [
-      {
-        path: 'all-course',
-        name: 'all-course',
-        component: () => import('@/views/course-table/all-course'),
-        meta: { title: '全部课表', icon: 'example' }
-      },
-      {
-        path: 'course-edit',
-        name: 'course-edit',
-        component: () => import('@/views/course-table/course-edit'),
-        meta: { title: '课表管理', icon: 'example' }
-      }
-    ]
-  },
-
   {
     path: '/works',
     component: Layout,
@@ -136,6 +113,7 @@ export const constantRoutes = [
   {
     path: '/nested',
     component: Layout,
+    hidden: true,
     redirect: '/nested/menu1',
     name: 'Nested',
     meta: {
@@ -191,15 +169,98 @@ export const constantRoutes = [
     ]
   }
 ]
-//权限路由
+// 权限路由
 export const asyncRoutes = [
   {
-    path: 'external-link',
+    path: '/course-table',
+    component: Layout,
+    redirect: '/course-table/all-course',
+    name: 'course',
+    meta: { title: '课表管理', icon: 'table' },
+    children: [
+      {
+        path: 'all-course',
+        name: 'all-course',
+        component: () => import('@/views/course-table/all-course'),
+        meta: { title: '全部课表', icon: 'example' }
+      },
+      {
+        path: 'course-edit',
+        name: 'course-edit',
+        component: () => import('@/views/course-table/course-edit'),
+        meta: { title: '课表管理', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/goods',
+    component: Layout,
+    redirect: '/goods/index',
+    name: 'goods',
+    meta: { title: '商品管理', icon: 'table' },
+    children: [
+      {
+        path: 'index',
+        name: 'goods-index',
+        component: () => import('@/views/goods/index'),
+        meta: { title: '商品管理', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/orders',
+    component: Layout,
+    redirect: '/orders/my-orders',
+    name: 'orders',
+    meta: { title: '订单管理', icon: 'table' },
+    children: [
+      {
+        path: 'my',
+        name: 'my',
+        component: () => import('@/views/orders/my'),
+        meta: { title: '我的订单', icon: 'example' }
+      },
+      {
+        path: 'history',
+        name: 'history',
+        component: () => import('@/views/orders/history'),
+        meta: { title: '历史订单', icon: 'example' }
+      }
+    ]
+  },
+  {
+    path: '/permission',
     component: Layout,
     children: [
       {
-        path: 'https://www.bilibili.com',
+        path: 'index',
+        name: 'permission-index',
+        component: () => import('@/views/permission/index'),
         meta: { title: '权限管理', icon: 'password' }
+      }
+    ]
+  }
+]
+
+export const editorRoutes = [
+  {
+    path: '/my-table',
+    component: Layout,
+    redirect: '/my-table/today',
+    name: 'my-table',
+    meta: { title: '我的课表', icon: 'table' },
+    children: [
+      {
+        path: 'today',
+        name: 'today',
+        component: () => import('@/views/my-table/today'),
+        meta: { title: '今日课表', icon: 'example' }
+      },
+      {
+        path: 'all',
+        name: 'all',
+        component: () => import('@/views/my-table/all'),
+        meta: { title: '全部课表', icon: 'example' }
       }
     ]
   }

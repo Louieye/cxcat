@@ -1,4 +1,4 @@
-import router, { asyncRoutes } from './router'
+import router, { asyncRoutes, editorRoutes } from './router'
 import store from './store'
 import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
@@ -50,8 +50,8 @@ router.beforeEach(async(to, from, next) => {
             //在vuex中设置完整路由
             store.dispatch('user/addMenu',asyncRoutes.concat(errUrl))
           }else {
-            router.addRoutes(errUrl)
-            store.dispatch('user/addMenu',errUrl)
+            router.addRoutes(editorRoutes.concat(errUrl))
+            store.dispatch('user/addMenu',editorRoutes.concat(errUrl))
           }
           
           //侧边栏根据router.options.routes渲染，需要绑定到store里的routes侧边栏才能显示
