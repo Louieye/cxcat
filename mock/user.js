@@ -20,7 +20,7 @@ const userInfo = [{
   token: 'editor-token'
 }]
 
-const users = {
+export const users = {
   'admin-token': {
     password: '123456',
     roles: ['admin'],

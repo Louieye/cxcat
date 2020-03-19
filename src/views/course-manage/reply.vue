@@ -10,25 +10,29 @@
         prop="date"
         label="日期"
         sortable
-        width="230"
+        width="200"
         column-key="date"
-        :filters="[{text: '2016-05-01', value: '2016-05-01'}, {text: '2016-05-02', value: '2016-05-02'}, {text: '2016-05-03', value: '2016-05-03'}, {text: '2016-05-04', value: '2016-05-04'}]"
         :filter-method="filterHandler"
       />
       <el-table-column
         prop="course"
         label="课程"
-        width="230"
+        width="200"
+        sortable
+        column-key="course"
+        :filter-method="filterHandler"
       />
       <el-table-column
         prop="teacher"
         label="教师"
-        width="230"
+        width="200"
+        sortable
+        column-key="teacher"
+        :filter-method="filterHandler"
       />
       <el-table-column
-        prop="text"
-        label="标题"
-        :formatter="formatter"
+        prop="updateDate"
+        label="更新时间"
       />
       <el-table-column
         prop="tag"
@@ -50,6 +54,10 @@
       >
         <template slot-scope="scope">
           <el-button
+          @click="showCard(scope.$index)"
+          size="mini"
+          type="success">查看</el-button>
+          <el-button
             size="mini"
             @click="handleEdit(scope.$index, scope.row)"
           >编辑</el-button>
@@ -61,87 +69,119 @@
         </template>
       </el-table-column>
     </el-table>
-    <div v-if="isActive" class="formbox"><el-form ref="form" :model="sizeForm" label-width="80px" size="mini">
-      <el-form-item label="标题">
-        <el-input v-model="sizeForm.name" />
+    <el-dialog
+  title="反馈内容"
+  :visible.sync="dialogVisible"
+  width="800px"
+  :before-close="handleClose">
+  <el-form ref="form" :model="sizeForm" label-width="80px" size="mini">
+      <el-form-item label="内容">
+        <el-input v-model="desc" type="textarea" />
       </el-form-item>
-      <!-- <el-form-item label="教师">
-        <el-select v-model="sizeForm.region" placeholder="请选择活动区域">
-          <el-option label="区域一" value="shanghai" />
-          <el-option label="区域二" value="beijing" />
-        </el-select>
-      </el-form-item> -->
-      <el-form-item label="内容" prop="desc">
-        <el-input v-model="sizeForm.desc" type="textarea" />
+      <el-form-item size="large" class="el-form-button">
+        <el-button ref="content" type="primary" @click="onSubmit">提交</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
       </el-form-item>
-      <el-form-item size="large">
-        <el-button type="primary" @click="onSubmit">提交</el-button>
-        <el-button>取消</el-button>
-      </el-form-item>
-    </el-form></div>
+    </el-form>
+</el-dialog>
+<el-card :class="[this.cardShow?'box-card':'hidden']" shadow="always">
+  <div slot="header" class="clearfix">
+    <span>反馈详情</span>
+    <el-button style="float: right; padding: 3px 0" type="text" @click="cardShow=false">关闭</el-button>
+  </div>
+  <div class="text item">
+    {{desc}}
+  </div>
+</el-card>
   </div>
 </template>
 
 <script>
+import { getReplyData, submitReply } from '@/api/reply'
+import { formatDate } from '@/utils/date'
+
 export default {
   data() {
     return {
-      isActive: false,
-      sizeForm: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
-      tableData: [{
-        date: '2020-03-18',
-        course: 'scratch',
-        teacher: '王小虎',
-        text: 'asdasdasdasdasd',
-        tag: '已反馈'
-      }, {
-        date: '2018-05-02',
-        course: 'scratch',
-        teacher: '王大虎',
-        text: 'asdasdasdasdasd',
-        tag: '已反馈'
-      }, {
-        date: '2018-07-02',
-        course: 'scratch',
-        teacher: '王二虎',
-        text: 'asdasdasdasdasd',
-        tag: '未反馈'
-      }, {
-        date: '2019-05-02',
-        course: 'scratch',
-        teacher: '王三虎',
-        text: 'asdasdasdasdasd',
-        tag: '未反馈'
-      }],
-      search: ''
+      index: '',
+      dialogVisible: false,
+      cardShow: false,
+      desc: '',
+      tableData: []
     }
   },
   methods: {
+    handleClose(done) {
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+    },
     handleEdit(index, row) {
-      this.isActive = true
-      console.log(index, row)
+      if(this.index != index){
+        this.desc = ''
+      }
+      this.index = index
+      this.dialogVisible = true
+      this.cardShow = false
     },
-    handleDelete(index, row) {
-      console.log(index, row)
+    async handleDelete(index, row) {
+      this.$confirm('确认删除？')
+          .then (_ => {
+            const deleteData = this.tableData[index]
+            deleteData.flag = 1
+            console.log(deleteData.flag);
+            
+            this.tableData.splice(index,1)
+            submitReply(deleteData).then(res=>{
+              if(res.code == 20000){
+                this.$message({
+                type: 'success',
+                message: '删除成功'
+                })
+              }else{
+                this.$message.error('删除失败')
+                console.log(res)
+              }
+            })
+          })
+          .catch(_ => {});
     },
-    formatter(row, column) {
-      return row.text
-    },
+    // formatter(row, column) {
+    //   return row.text
+    // },
     filterTag(value, row) {
       return row.tag === value
     },
-    onSubmit(value, row) {
-      this.isActive = false
+    async onSubmit() {
+      const table = this.tableData[this.index]
+      this.tableData[this.index].desc = this.desc
+      const date = new Date().getTime()
+      this.tableData[this.index].updateDate = formatDate(date)
+      this.tableData[this.index].desc = this.desc
+      this.tableData[this.index].tag = '已反馈'
+      const res = await submitReply(this.tableData[this.index])
+      if(res){
+        this.$message({
+          type: 'success',
+          message: '提交成功'
+        })
+      }else{
+        this.$message.error('提交失败')
+      }
+      this.index = ''
+      this.desc = ''
+      this.dialogVisible = false
+    },
+    showCard(index) {
+      this.cardShow = true
+      this.desc = this.tableData[index].desc
     }
+  },
+  async mounted(){
+    const table = await getReplyData()
+    this.tableData = table.data
   }
 }
 </script>
@@ -157,22 +197,43 @@ export default {
     .head-tag {
         height: 200px;
     }
-    .el-table .cell {
-        height: 50px;
-        overflow: hidden;
+    .el-form-button {
+      padding-left: 69%;
     }
-    .formbox {
-        height: 600px;
-        width: 800px;
-        border: 1px solid gainsboro;
-        background-color: white;
-        border-radius: 10px;
-        padding: 20px;
-        position: absolute;
-        top: 10%;
-        left: 50%;
-        transform: translate(-50%,0);
-        box-shadow: 0 0px 5px 2px gainsboro;
-        z-index: 2;
+    .el-dialog__body {
+      padding: 0;
     }
+    .el-textarea__inner {
+      resize: none;
+    }
+    .text {
+    font-size: 14px;
+  }
+  //卡片
+  .item {
+    margin-bottom: 18px;
+  }
+
+  .clearfix:before,
+  .clearfix:after {
+    display: table;
+    content: "";
+  }
+  .clearfix:after {
+    clear: both
+  }
+
+  .box-card {
+    width: 580px;
+  }
+  .box-card {
+    z-index: 3;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%,0);
+    top: 17%;
+  }
+  .hidden {
+    display: none;
+  }
 </style>
