@@ -66,7 +66,7 @@ export const constantRoutes = [
         path: 'table',
         name: 'Table',
         component: () => import('@/views/course-manage/reply'),
-        meta: { title: '课程反馈', icon: 'example' }
+        meta: { title: '课程小结', icon: 'example' }
       },
       {
         path: 'tree',

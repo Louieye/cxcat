@@ -22,12 +22,11 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = getToken()
-  
-  //404页面要最后添加到底部
+
+  // 404页面要最后添加到底部
   const errUrl = [
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }]
-
+    { path: '*', redirect: '/404', hidden: true }]
 
   if (hasToken) {
     if (to.path === '/login') {
@@ -42,22 +41,21 @@ router.beforeEach(async(to, from, next) => {
         try {
           // 获取用户信息
           await store.dispatch('user/getInfo')
-          //获取用户权限，返回{code：***, data: ['***']}
+          // 获取用户权限，返回{code：***, data: ['***']}
           const role = await getMenu()
-          if(role.data[0] == 'admin'){
-            //在router中添加路由
+          if (role.data[0] == 'admin') {
+            // 在router中添加路由
             router.addRoutes(asyncRoutes.concat(errUrl))
-            //在vuex中设置完整路由
-            store.dispatch('user/addMenu',asyncRoutes.concat(errUrl))
-          }else {
+            // 在vuex中设置完整路由
+            store.dispatch('user/addMenu', asyncRoutes.concat(errUrl))
+          } else {
             router.addRoutes(editorRoutes.concat(errUrl))
-            store.dispatch('user/addMenu',editorRoutes.concat(errUrl))
+            store.dispatch('user/addMenu', editorRoutes.concat(errUrl))
           }
-          
-          //侧边栏根据router.options.routes渲染，需要绑定到store里的routes侧边栏才能显示
+
+          // 侧边栏根据router.options.routes渲染，需要绑定到store里的routes侧边栏才能显示
           router.options.routes = store.getters.routes
-          
-          
+
           next({ ...to, replace: true })
         } catch (error) {
           // remove token and go to login page to re-login

@@ -57,7 +57,7 @@ const tableData = [{
   course: 'scratch'
 },
 {
-  id: '1',
+  id: '3',
   date: '2020-03-17 9:00',
   name: '张三',
   address: '1号教室',
@@ -81,7 +81,6 @@ const tableData = [{
   address: '2号教室',
   course: 'scratch'
 }]
-
 
 export default [
   // user login
@@ -157,25 +156,11 @@ export default [
     type: 'get',
     response: config => {
       const { token } = config.headers
-      const index = userInfo.findIndex(item => {
-        return item.token === token
-      })
-      if (index !== -1) {
-        const id = userInfo[index].id
-        const data = []
-        tableData.forEach(item => {
-          if (item.id === id) {
-            data.push(item)
-          }
-        })
+      if (users[token]) {
         return {
           code: 20000,
-          data: data
+          data: tableData
         }
-      }
-      return {
-        code: 20000,
-        data: token
       }
     }
   },
