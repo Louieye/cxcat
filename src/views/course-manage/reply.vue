@@ -4,7 +4,7 @@
     <el-table
       ref="filterTable"
       :data="tableData"
-      style="width: 100%"
+      style="width: 95%"
     >
       <el-table-column
         prop="date"
@@ -186,7 +186,12 @@ export default {
 
 <style lang="scss" scoped>
     .mainBox {
-      min-width:1150px;
+      min-width:900px;
+    }
+    .el-table {
+      margin: 0 auto;
+      border: 1px solid gainsboro;
+      border-radius: 5px;
     }
     .head {
         text-align: center;

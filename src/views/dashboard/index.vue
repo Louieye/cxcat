@@ -30,19 +30,19 @@
         <el-table-column
           prop="date"
           label="课程时间"
-          width="210"
+          width="200"
           sortable
         />
         <el-table-column
           prop="name"
           label="课程教师"
-          width="210"
+          width="190"
           sortable
         />
         <el-table-column
           prop="address"
           label="上课教室"
-          width="210"
+          width="180"
           sortable
         />
         <el-table-column
@@ -165,13 +165,13 @@ export default {
 
   .box-card {
     width:49.5%;
-    height: 630px;
+    height: 650px;
     float: left;
     margin-top: 10px;
   }
   .box-card2 {
     width:49.5%;
-    height: 630px;
+    height: 650px;
     float: right;
     margin-top: 10px;
   }
