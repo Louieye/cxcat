@@ -18,6 +18,11 @@ const userInfo = [{
   username: 'editor',
   password: '123456',
   token: 'editor-token'
+}, {
+  id: '3',
+  username: 'lyj',
+  password: '123456',
+  token: 'admin-token'
 }]
 
 export const users = {
@@ -190,16 +195,36 @@ export default [
     type: 'get',
     response: config => {
       const { token } = config.headers
-      if(token){
+      if (token) {
         return {
           code: 20000,
           data: users[token].roles
         }
-      }else {
+      } else {
         return {
           code: 20000,
           message: '路由菜单获取失败'
         }
+      }
+    }
+  },
+  // 权限管理获取用户
+  {
+    url: '/permission/info',
+    type: 'get',
+    response: config => {
+      const { token } = config.headers
+      // mock error
+      if (token !== 'admin-token') {
+        return {
+          code: 50008,
+          message: '权限验证失败，请重新登录'
+        }
+      }
+
+      return {
+        code: 20000,
+        data: userInfo
       }
     }
   }

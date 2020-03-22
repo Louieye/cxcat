@@ -25,7 +25,8 @@
         :data="tableData"
         stripe="true"
         :default-sort="{prop: 'date', order: 'descending'}"
-        style="width: 100%"
+        style="width: 100%;"
+        border
       >
         <el-table-column
           prop="date"

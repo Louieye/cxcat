@@ -1,6 +1,5 @@
 <template>
   <div class="mainBox">
-    <div class="head">课程小结</div>
     <el-table
       ref="filterTable"
       :data="tableData"
@@ -10,20 +9,17 @@
         prop="date"
         label="日期"
         sortable
-        width="200"
         column-key="date"
       />
       <el-table-column
         prop="course"
         label="课程"
-        width="200"
         sortable
         column-key="course"
       />
       <el-table-column
         prop="teacher"
         label="教师"
-        width="200"
         sortable
         column-key="teacher"
       />
@@ -34,7 +30,6 @@
       <el-table-column
         prop="tag"
         label="状态"
-        width="100"
         :filters="[{ text: '已提交', value: '已提交' }, { text: '未提交', value: '未提交' }]"
         :filter-method="filterTag"
         filter-placement="bottom-end"
@@ -47,23 +42,27 @@
         </template>
       </el-table-column>
       <el-table-column
-        align="right"
+        label="操作"
+        width="200"
       >
         <template slot-scope="scope">
           <el-button
             size="mini"
             type="success"
+            icon="el-icon-view"
             @click="showCard(scope.$index)"
-          >查看</el-button>
+          />
           <el-button
             size="mini"
+            icon="el-icon-edit"
             @click="handleEdit(scope.$index, scope.row)"
-          >编辑</el-button>
+          />
           <el-button
             size="mini"
             type="danger"
+            icon="el-icon-delete"
             @click="handleDelete(scope.$index, scope.row)"
-          >删除</el-button>
+          />
         </template>
       </el-table-column>
     </el-table>
@@ -187,18 +186,12 @@ export default {
 <style lang="scss" scoped>
     .mainBox {
       min-width:900px;
+      margin-top: 40px;
     }
     .el-table {
       margin: 0 auto;
       border: 1px solid gainsboro;
       border-radius: 5px;
-    }
-    .head {
-        text-align: center;
-        font-size: 25px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        color: slategray;
     }
     .head-tag {
         height: 200px;
