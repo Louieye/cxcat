@@ -78,7 +78,7 @@ export default {
         password: '123456'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        username: [{ min: 3, max: 12, message: '用户名长度在 3 到 12 个字符', trigger: 'blur' }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       loading: false,

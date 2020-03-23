@@ -20,7 +20,7 @@ const replyData = [{
   id: 3,
   date: '2020-03-18',
   course: 'HTML',
-  teacher: '王小虎',
+  teacher: '赵铁柱',
   updateDate: '',
   desc: '',
   tag: '未提交'
@@ -36,7 +36,7 @@ const replyData = [{
   id: 5,
   date: '2018-07-02',
   course: 'C语言',
-  teacher: '王二虎',
+  teacher: '张大虎',
   updateDate: '',
   desc: '',
   tag: '未提交'
@@ -44,7 +44,7 @@ const replyData = [{
   id: 6,
   date: '2019-05-02',
   course: 'scratch',
-  teacher: 'Pascal',
+  teacher: '王大虎',
   updateDate: '',
   desc: '',
   tag: '未提交'
@@ -52,7 +52,7 @@ const replyData = [{
   id: 7,
   date: '2019-05-02',
   course: 'scratch',
-  teacher: 'Pascal',
+  teacher: '张大虎',
   updateDate: '',
   desc: '',
   tag: '未提交'
@@ -60,7 +60,7 @@ const replyData = [{
   id: 8,
   date: '2019-05-02',
   course: 'scratch',
-  teacher: 'Pascal',
+  teacher: '王大虎',
   updateDate: '',
   desc: '',
   tag: '未提交'
@@ -68,7 +68,7 @@ const replyData = [{
   id: 9,
   date: '2019-05-02',
   course: 'scratch',
-  teacher: 'Pascal',
+  teacher: '王大虎',
   updateDate: '',
   desc: '',
   tag: '未提交'

@@ -7,8 +7,10 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
+    username: '',
     avatar: '',
-    routes: constantRoutes
+    routes: constantRoutes,
+    roles: ''
   }
 }
 
@@ -29,6 +31,12 @@ const mutations = {
   },
   SET_ROUTES: (state,routes)=> {
     state.routes = constantRoutes.concat(routes)
+  },
+  SET_USERNAME: (state,username)=> {
+    state.username = username
+  },
+  SET_ROLES: (state,roles)=> {
+    state.roles = roles
   }
 }
 
@@ -40,6 +48,7 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
         commit('SET_TOKEN', data.token)
+        commit('SET_USERNAME', username)
         setToken(data.token)
         resolve()
       }).catch(error => {
@@ -58,10 +67,11 @@ const actions = {
           reject('Verification failed, please Login again.')
         }
 
-        const { name, avatar } = data
+        const { name, avatar, roles } = data
 
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
+        commit('SET_ROLES', roles)
         resolve(data)
       }).catch(error => {
         reject(error)

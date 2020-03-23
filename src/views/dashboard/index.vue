@@ -84,6 +84,7 @@ export default {
     this.tableData = table.data
     const headerData = await getHeaderData()
     this.header = headerData.data
+    
   },
   computed: {
     ...mapGetters([

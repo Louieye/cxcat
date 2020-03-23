@@ -12,32 +12,47 @@ const userInfo = [{
   id: '1',
   username: 'admin',
   password: '123456',
-  token: 'admin-token'
+  name: '王大虎',
+  token: 'admin-token',
+  avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+  roles: ['admin']
 }, {
   id: '2',
   username: 'editor',
   password: '123456',
-  token: 'editor-token'
+  name: '张大虎',
+  token: 'editor-token',
+  avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+  roles: ['editor']
 }, {
   id: '3',
   username: 'lyj',
   password: '123456',
-  token: 'admin-token'
+  name: '赵铁柱',
+  token: 'admin-token',
+  avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+  roles: ['admin']
 }]
 
 export const users = {
   'admin-token': {
     password: '123456',
-    roles: ['admin'],
+    roles: 'admin',
     introduction: 'I am a super administrator',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-    name: 'Super Admin'
+    name: '王大虎'
   },
   'editor-token': {
     roles: ['editor'],
     introduction: 'I am an editor',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-    name: 'Normal Editor'
+    name: '赵铁柱'
+  },
+  'zdh-token': {
+    roles: ['editor'],
+    introduction: 'I am an editor',
+    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    name: '张大虎'
   }
 }
 
@@ -94,19 +109,22 @@ export default [
     type: 'post',
     response: config => {
       const { username } = config.body
-      const token = tokens[username]
+      
 
       // mock error
-      if (!token) {
-        return {
-          code: 60204,
-          message: 'Account and password are incorrect.'
-        }
-      }
+      // if (!token) {
+      //   return {
+      //     code: 60204,
+      //     message: 'Account and password are incorrect.'
+      //   }
+      // }
       const index = userInfo.findIndex((item) => {
         return item.username === username
       })
       if (config.body.password === userInfo[index].password) {
+        const token = {
+          token: userInfo[index].token
+        }
         return {
           code: 20000,
           data: token
@@ -123,11 +141,11 @@ export default [
   // get user info
   {
     url: '/vue-admin-template/user/info\.*',
-    type: 'get',
+    type: 'post',
     response: config => {
       const { token } = config.headers
+      const index = userInfo.findIndex(item=>item.username === config.body.username)
       const info = users[token]
-
       // mock error
       if (!info) {
         return {
@@ -208,7 +226,7 @@ export default [
       }
     }
   },
-  // 权限管理获取用户
+  // 权限管理页面-获取用户
   {
     url: '/permission/info',
     type: 'get',
@@ -222,6 +240,77 @@ export default [
         }
       }
 
+      return {
+        code: 20000,
+        data: userInfo
+      }
+    }
+  },
+
+  // 权限管理页面-新增用户
+  {
+    url: '/permission/submit',
+    type: 'post',
+    response: config => {
+      const { token } = config.headers
+      // mock error
+      if (token !== 'admin-token') {
+        return {
+          code: 50008,
+          message: '权限验证失败'
+        }
+      }
+      const data = config.body
+      data.token += '-token'
+      userInfo.push(data)
+      return {
+        code: 20000,
+        data: data
+      }
+    }
+  },
+  // 权限管理页面-修改密码
+  {
+    url: '/permission/change',
+    type: 'post',
+    response: config => {
+      const { token } = config.headers
+      // mock error
+      if (token !== 'admin-token') {
+        return {
+          code: 50008,
+          message: '权限验证失败'
+        }
+      }
+      const data = config.body
+      const index = userInfo.findIndex(item => item.id === data.id)
+      if(index !== -1){
+        userInfo[index].password = data.password
+      }
+      return {
+        code: 20000,
+        data: userInfo
+      }
+    }
+  },
+  // 权限管理页面-删除用户
+  {
+    url: '/permission/delete',
+    type: 'post',
+    response: config => {
+      const { token } = config.headers
+      // mock error
+      if (token !== 'admin-token') {
+        return {
+          code: 50008,
+          message: '权限验证失败'
+        }
+      }
+      const data = config.body
+      const index = userInfo.findIndex(item => item.id === data.id)
+      if(index !== -1){
+        userInfo.splice(index, 1)
+      }
       return {
         code: 20000,
         data: userInfo

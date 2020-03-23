@@ -50,7 +50,7 @@
             size="mini"
             type="success"
             icon="el-icon-view"
-            @click="showCard(scope.$index)"
+            @click="showCard(scope.$index,scope.row)"
           />
           <el-button
             size="mini"
@@ -109,8 +109,15 @@ export default {
     }
   },
   async mounted() {
-    const table = await getReplyData()
-    this.tableData = table.data
+    const {data: table} = await getReplyData()
+    const roles = this.$store.state.user.roles
+    if(roles !='admin'){
+      const name = this.$store.state.user.name
+      this.tableData = table.filter(item => item.teacher === name)
+    }else{
+      this.tableData = table
+    }
+    
   },
   methods: {
     handleClose(done) {
@@ -121,22 +128,22 @@ export default {
         .catch(_ => {})
     },
     handleEdit(index, row) {
-      if (this.index !== index) {
+      if (this.index !== row.id) {
         this.desc = ''
       }
-      this.index = index
-      this.desc = this.tableData[index].desc
+      this.index = row.id
+      this.desc = this.tableData.find(item=> item.id === row.id).desc
       this.dialogVisible = true
       this.cardShow = false
     },
     async handleDelete(index, row) {
       this.$confirm('确认删除？')
         .then(_ => {
-          this.tableData[index].desc = ''
-          this.tableData[index].updateDate = ''
-          this.tableData[index].tag = '未提交'
+          this.tableData.find(item=>item.id === row.id).desc = ''
+          this.tableData.find(item=>item.id === row.id).updateDate = ''
+          this.tableData.find(item=>item.id === row.id).tag = '未提交'
           this.cardShow = false
-          submitReply(this.tableData[index]).then(res => {
+          submitReply(this.tableData.find(item=>item.id === row.id)).then(res => {
             if (res.code === 20000) {
               console.log(res)
               this.$message({
@@ -159,10 +166,11 @@ export default {
     },
     async onSubmit() {
       const date = new Date().getTime()
-      this.tableData[this.index].updateDate = formatDate(date)
-      this.tableData[this.index].desc = this.desc
-      this.tableData[this.index].tag = '已提交'
-      const res = await submitReply(this.tableData[this.index])
+      const index = this.tableData.findIndex(item => item.id === this.index)
+      this.tableData[index].updateDate = formatDate(date)
+      this.tableData[index].desc = this.desc
+      this.tableData[index].tag = '已提交'
+      const res = await submitReply(this.tableData[index])
       if (res) {
         this.$message({
           type: 'success',
@@ -175,9 +183,9 @@ export default {
       this.desc = ''
       this.dialogVisible = false
     },
-    showCard(index) {
+    showCard(index, row) {
       this.cardShow = true
-      this.desc = this.tableData[index].desc
+      this.desc = this.tableData.find(item=> item.id === row.id).desc
     }
   }
 }
