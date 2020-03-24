@@ -29,6 +29,13 @@
         </template>
       </el-table-column>
       <el-table-column
+        label="姓名"
+      >
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="权限"
       >
         <template slot-scope="scope">
@@ -59,7 +66,7 @@
       </el-table-column>
     </el-table>
     <el-dialog
-  :title="ruleForm.username===''?'新增用户':'修改密码'"
+  title="添加/编辑用户"
   :visible.sync="dialogVisible"
   width="45%"
   :before-close="handleClose">
@@ -69,6 +76,9 @@
   </el-form-item>
   <el-form-item label="用户名" prop="username">
     <el-input v-model="ruleForm.username"></el-input>
+  </el-form-item>
+  <el-form-item label="姓名" prop="name">
+    <el-input v-model="ruleForm.name"></el-input>
   </el-form-item>
   <el-form-item label="密码" prop="password">
     <el-input v-model="ruleForm.password" show-password></el-input>
@@ -141,6 +151,7 @@ export default {
       tableData: [],
       ruleForm: {
         id: '',
+        name: '',
         username: '',
         password: '',
         check: '',
@@ -163,6 +174,9 @@ export default {
         ],
         role: [
           { required: true, message: '请选择权限', trigger: 'change' }
+        ],
+        name: [
+          { required: true, message: '请输入姓名', trigger: 'blur' }
         ]
       },
       dialogVisible: false,

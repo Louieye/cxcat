@@ -109,6 +109,17 @@ export const constantRoutes = [
       meta: { title: '反馈系统', icon: 'example' }
     }]
   },
+  {
+    path: '/myInfo',
+    component: Layout,
+    redirect: '/myInfo/index',
+    children: [{
+      path: 'index',
+      name: 'myInfo',
+      component: () => import('@/views/myInfo/index'),
+      meta: { title: '个人信息', icon: 'user' }
+    }]
+  },
 
   {
     path: '/nested',
@@ -172,22 +183,28 @@ export const constantRoutes = [
 // 权限路由
 export const asyncRoutes = [
   {
-    path: '/course-table',
+    path: '/my-table',
     component: Layout,
-    redirect: '/course-table/all-course',
+    redirect: '/my-table/today',
     name: 'course',
     meta: { title: '课表管理', icon: 'table' },
     children: [
       {
+        path: 'today',
+        name: 'today',
+        component: () => import('@/views/my-table/today'),
+        meta: { title: '今日课表', icon: 'example' }
+      },
+      {
         path: 'all-course',
         name: 'all-course',
-        component: () => import('@/views/course-table/all-course'),
+        component: () => import('@/views/my-table/all'),
         meta: { title: '全部课表', icon: 'example' }
       },
       {
         path: 'course-edit',
         name: 'course-edit',
-        component: () => import('@/views/course-table/course-edit'),
+        component: () => import('@/views/my-table/course-edit'),
         meta: { title: '课表管理', icon: 'example' }
       }
     ]

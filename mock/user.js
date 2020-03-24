@@ -37,7 +37,7 @@ const userInfo = [{
 export const users = {
   'admin-token': {
     password: '123456',
-    roles: 'admin',
+    roles: ['admin'],
     introduction: 'I am a super administrator',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
     name: '王大虎'
@@ -232,7 +232,7 @@ export default [
     type: 'get',
     response: config => {
       const { token } = config.headers
-      // mock error
+      // mock errorpermi
       if (token !== 'admin-token') {
         return {
           code: 50008,
