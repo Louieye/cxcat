@@ -36,23 +36,39 @@ const userInfo = [{
 
 export const users = {
   'admin-token': {
+    id: '1',
     password: '123456',
     roles: ['admin'],
     introduction: 'I am a super administrator',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-    name: '王大虎'
+    name: '王大虎',
+    email: '123456@qq.com',
+    phone: '17785748834',
+    sex: '男',
+    age: '23',
+    birth: '1998-11-1'
   },
   'editor-token': {
+    id: '2',
     roles: ['editor'],
     introduction: 'I am an editor',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-    name: '赵铁柱'
+    name: '赵铁柱',
+    phone: '17785748834',
+    sex: '男',
+    age: '23',
+    birth: '1998-11-1'
   },
   'zdh-token': {
+    id: '3',
     roles: ['editor'],
     introduction: 'I am an editor',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-    name: '张大虎'
+    name: '张大虎',
+    phone: '17785748834',
+    sex: '男',
+    age: '23',
+    birth: '1998-11-1'
   }
 }
 

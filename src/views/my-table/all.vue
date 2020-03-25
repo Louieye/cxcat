@@ -29,23 +29,28 @@
     </el-table-column>
     <el-table-column
       label="星期"
-      prop="day">
+      prop="day"
+      sortable>
     </el-table-column>
     <el-table-column
       label="课程名"
-      prop="name">
+      prop="name"
+      sortable>
     </el-table-column>
     <el-table-column
       label="分类"
-      prop="type">
+      prop="type"
+      sortable>
     </el-table-column>
     <el-table-column
       label="教师"
-      prop="teacher">
+      prop="teacher"
+      sortable>
     </el-table-column>
     <el-table-column
       label="上课地点"
-      prop="classroom">
+      prop="classroom"
+      sortable>
     </el-table-column>
     <el-table-column label="操作">
       <template slot-scope="scope">

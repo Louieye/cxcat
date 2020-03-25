@@ -172,7 +172,7 @@ export default {
           { validator: checkPass, trigger: 'blur' }
 
         ],
-        role: [
+        token: [
           { required: true, message: '请选择权限', trigger: 'change' }
         ],
         name: [

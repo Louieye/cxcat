@@ -6,13 +6,15 @@ import table from './table'
 import reply from './reply'
 import test from './test'
 import classTable from './classTable'
+import goods from './goods'
 
 const mocks = [
   ...user,
   ...table,
   ...reply,
   ...test,
-  ...classTable
+  ...classTable,
+  ...goods
 ]
 
 // for front mock
