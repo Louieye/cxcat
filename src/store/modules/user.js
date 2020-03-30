@@ -1,10 +1,15 @@
-import { login, logout, getInfo, getMenu } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getAccessToken, login, logout, getInfo, getMenu } from '@/api/user'
+import { getToken, setToken, removeToken, checkAccessToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import { constantRoutes } from '@/router'
 
 const getDefaultState = () => {
   return {
+    //云服务器后台token
+    access_token: '',
+    //云服务器token过期时间
+    timeOut: '0',
+    //用户token
     token: getToken(),
     name: '',
     username: '',
@@ -13,7 +18,7 @@ const getDefaultState = () => {
     roles: ''
   }
 }
-
+const env = 'lyj-app'
 const state = getDefaultState()
 
 const mutations = {
@@ -22,6 +27,12 @@ const mutations = {
   },
   SET_TOKEN: (state, token) => {
     state.token = token
+  },
+  SET_ACCESS_TOKEN: (state, access_token) => {
+    state.access_token = access_token
+  },
+  SET_TIMEOUT: (state, time) => {
+    state.timeOut = time
   },
   SET_NAME: (state, name) => {
     state.name = name
@@ -41,42 +52,103 @@ const mutations = {
 }
 
 const actions = {
+
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
+    //判断access_token是否过期
+    const time = Date.parse(new Date())
+    if(time > state.timeOut){
+      checkAccessToken()
+    }
+    setTimeout(()=>{
+      const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
+      const data = {
+        env: env,
+        query: 'db.collection(\"adminUsers\").where({username:\"' + username + '\"}).get()',
+      }
+      const submitData = JSON.stringify(data)
+      login(submitData).then(response => {
+        const res = JSON.parse(response.data)
+        commit('SET_TOKEN', res.token)
         commit('SET_USERNAME', username)
-        setToken(data.token)
+        setToken(res.token)
         resolve()
       }).catch(error => {
         reject(error)
       })
     })
+    },500)
+    
   },
 
   // get user info
   getInfo({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
-        if (!data) {
-          reject('Verification failed, please Login again.')
+    console.log('进入getinfo');
+    const time = Date.parse(new Date())
+    console.log(time);
+    console.log(state.timeOut);
+    console.log(time > state.timeOut);
+    
+    if(time > state.timeOut){
+      console.log('token失效');
+      
+      checkAccessToken()
+      // setTimeout(()=>{
+      //   return new Promise((resolve, reject) => {
+      //     const data = {
+      //       env: env,
+      //       query: 'db.collection(\"adminUsers\").where({username:\"' + state.username + '\"}).get()',
+      //     }
+      //     const submitData = JSON.stringify(data)
+      //     getInfo(submitData).then(response => {
+      //       const res = JSON.parse(response.data)
+    
+      //       if (!res) {
+      //         reject('获取用户信息失败, 请重新登录')
+      //       }
+    
+      //       const { name, avatar, roles } = res
+    
+      //       commit('SET_NAME', name)
+      //       commit('SET_AVATAR', avatar)
+      //       commit('SET_ROLES', roles)
+            
+      //       resolve(data)
+      //     }).catch(error => {
+      //       reject(error)
+      //     })
+      //   })
+      // },500)
+    }else{
+      console.log('token存在');
+      return new Promise((resolve, reject) => {
+        const data = {
+          env: env,
+          query: 'db.collection(\"adminUsers\").where({username:\"' + username + '\"}).get()',
         }
-
-        const { name, avatar, roles } = data
-
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        commit('SET_ROLES', roles)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
+        const submitData = JSON.stringify(data)
+        getInfo(submitData).then(response => {
+          console.log('getinfo请求');
+          
+          const res = JSON.parse(response.data)
+  
+          if (!res) {
+            reject('获取用户信息失败, 请重新登录')
+          }
+  
+          const { name, avatar, roles } = res
+  
+          commit('SET_NAME', name)
+          commit('SET_AVATAR', avatar)
+          commit('SET_ROLES', roles)
+          resolve(data)
+        }).catch(error => {
+          reject(error)
+        })
       })
-    })
+    }
+    
   },
 
   // user logout
