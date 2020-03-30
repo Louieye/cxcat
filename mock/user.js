@@ -225,7 +225,7 @@ export default [
   },
   // 获取路由
   {
-    url: '/vue-admin-template/user/getMenu',
+    url: '/user/getMenu',
     type: 'get',
     response: config => {
       const { token } = config.headers

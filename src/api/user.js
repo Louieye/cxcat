@@ -1,16 +1,28 @@
 import request from '@/utils/request'
+import store from '@/store'
+
+export function getAccessToken() {
+  return request({
+    url: 'cgi-bin/token?grant_type=client_credential&appid=wx866eb563150cf730&secret=8f5a352c27f025f2f8f48948ee2daf5f',
+    method: 'get'
+  })
+}
 
 export function login(data) {
+  const access_token = store.getters.access_token
+  console.log('api' ,access_token);
+  
   return request({
-    url: '/vue-admin-template/user/login',
+    url: 'tcb/databasequery?access_token=' + access_token,
     method: 'post',
     data
   })
 }
 
 export function getInfo(data) {
+  const access_token = store.getters.access_token
   return request({
-    url: '/vue-admin-template/user/info',
+    url: 'tcb/databasequery?access_token=' + access_token,
     method: 'post',
     data
   })
@@ -25,7 +37,7 @@ export function logout() {
 
 export function getMenu() {
   return request({
-    url: '/vue-admin-template/user/getMenu',
+    url: '/user/getMenu',
     method: 'get'
   })
 }

@@ -39,11 +39,16 @@ router.beforeEach(async(to, from, next) => {
         next()
       } else {
         try {
+          console.log('获取用户信息');
+          
           // 获取用户信息
           await store.dispatch('user/getInfo')
           // 获取用户权限，返回{code：***, data: ['***']}
-          const role = await getMenu()
-          if (role.data[0] == 'admin') {
+          console.log('信息获取完成');
+          
+          // const role = await getMenu()
+          // 判断权限
+          if (store.getters.roles == 'admin') {
             // 在router中添加路由
             router.addRoutes(asyncRoutes.concat(errUrl))
             // 在vuex中设置完整路由

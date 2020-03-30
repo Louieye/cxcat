@@ -1,10 +1,15 @@
-import { login, logout, getInfo, getMenu } from '@/api/user'
+import { login, logout, getInfo, getMenu, getAccessToken } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import { constantRoutes } from '@/router'
 
 const getDefaultState = () => {
   return {
+    // 云服务器后台token
+    access_token: '',
+    // 云服务器token过期时间
+    timeOut: 0,
+    // 用户token
     token: getToken(),
     name: '',
     username: '',
@@ -29,29 +34,46 @@ const mutations = {
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
   },
-  SET_ROUTES: (state,routes)=> {
+  SET_ROUTES: (state, routes) => {
     state.routes = constantRoutes.concat(routes)
   },
-  SET_USERNAME: (state,username)=> {
+  SET_USERNAME: (state, username) => {
     state.username = username
   },
-  SET_ROLES: (state,roles)=> {
+  SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_ACCESS_TOKEN: (state, access_token) => {
+    state.access_token = access_token
+  },
+  SET_TIMEOUT: (state, time) => {
+    state.timeOut = time
   }
 }
 
 const actions = {
   // user login
-  login({ commit }, userInfo) {
+  login({ commit }, userInfo ) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
+      const data = {
+        env: 'lyj-app',
+        query: 'db.collection(\"adminUsers\").where({username:\"' + username + '\"}).get()'
+      }
+      const submitData = JSON.stringify(data)
+      console.log(submitData);
+      
+      login(submitData).then(response => {
+        
+        const res = JSON.parse(response.data.data)
+        console.log('登录信息：', res)
+
+        commit('SET_TOKEN', res.token)
         commit('SET_USERNAME', username)
-        setToken(data.token)
+        setToken(res.token)
         resolve()
       }).catch(error => {
+        console.log()
         reject(error)
       })
     })
@@ -60,19 +82,47 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
+      const data = {
+        env: 'lyj-app',
+        query: 'db.collection(\"adminUsers\").where({username:\"' + state.username + '\"}).get()'
+      }
+      const submitData = JSON.stringify(data)
+      getInfo(submitData).then(response => {
 
+        const data = JSON.parse(response.data.data)
+        console.log('getinfo',data);
+        
         if (!data) {
           reject('Verification failed, please Login again.')
         }
 
         const { name, avatar, roles } = data
-
+        
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         commit('SET_ROLES', roles)
+        console.log(state.roles);
+        
         resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
+  // get access_token
+  getAccessToken({ commit }) {
+    return new Promise((resolve, reject) => {
+      getAccessToken().then(response => {
+        const time = new Date().getTime()
+        const res = response.data
+        console.log(res)
+        commit('SET_ACCESS_TOKEN', res.access_token)
+        commit('SET_TIMEOUT', res.expires_in * 1000 + time - 300000)
+        console.log('设置accesstoken', state.access_token)
+        console.log('time', res.expires_in * 1000 + time - 300000)
+        console.log('设置timeOut', state.timeOut)
+        resolve()
       }).catch(error => {
         reject(error)
       })
@@ -101,7 +151,7 @@ const actions = {
       resolve()
     })
   },
-  //权限路由
+  // 权限路由
   addMenu({ commit, state }, routes) {
     return new Promise((resolve, reject) => {
       // getMenu().then((response) => {
@@ -109,7 +159,7 @@ const actions = {
       // }).catch(error => {
       //   reject(error)
       // })
-      commit('SET_ROUTES',routes)
+      commit('SET_ROUTES', routes)
     })
   }
 }
