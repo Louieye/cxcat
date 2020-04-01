@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-text">Hello，{{ name }}</div>
-    <el-row :gutter="20">
+    <el-row :gutter="20" class="head">
       <el-col :span="6"><div class="grid-content bg-purple header">
         <i class="el-icon-s-custom icon-custom" />
         <span>访客：{{ header.visited }}</span>
@@ -22,30 +22,33 @@
     <span class="title">本周课程：</span>
     <el-card class="box-card">
       <el-table
+        v-loading="loading"
         :data="tableData"
-        stripe="true"
+        stripe
         :default-sort="{prop: 'date', order: 'descending'}"
         style="width: 100%;"
       >
         <el-table-column
-          prop="date"
-          label="课程时间"
+          prop="day"
+          label="课程时间(星期)"
+          width="140px"
           sortable
+          align="center"
         />
         <el-table-column
-          prop="name"
+          prop="teacher"
           label="课程教师"
-          sortable
+          align="center"
         />
         <el-table-column
-          prop="address"
+          prop="classroom"
           label="上课教室"
-          sortable
+          align="center"
         />
         <el-table-column
-          prop="course"
+          prop="type"
           label="课程"
-          sortable
+          align="center"
         />
       </el-table>
     </el-card>
@@ -60,14 +63,17 @@
 import { mapGetters } from 'vuex'
 import { getTableData } from '@/api/dashboard'
 import { getHeaderData } from '@/api/dashboard'
+import { jsonFormat } from '@/utils/jsonFormat'
+
 
 export default {
   name: 'Dashboard',
   data() {
     return {
-      header: [],
+      header: {},
       tableData: [],
-      value: new Date()
+      value: new Date(),
+      loading: true
     }
   },
   async mounted() {
@@ -75,11 +81,24 @@ export default {
     // const token = this.$store.state.user.token
     // console.log(token);
     // getTableData返回一个对象，数据在data中
-    const table = await getTableData()
-    console.log(table)
-    this.tableData = table.data
-    const headerData = await getHeaderData()
-    this.header = headerData.data
+    const tableData = {
+        env: 'lyj-app',
+        query: 'db.collection(\"classTable\").get()'
+      }
+    const submitTable = JSON.stringify(tableData)
+    const table = await getTableData(submitTable)
+    this.tableData = jsonFormat(table)
+    const headData = {
+        env: 'lyj-app',
+        query: 'db.collection(\"homeInfo\").get()'
+      }
+    this.loading = false
+    const submitHead = JSON.stringify(headData)
+    const head = await getTableData(submitHead)
+    console.log(head);
+    console.log(jsonFormat(head));
+    
+    this.header = jsonFormat(head)
     
   },
   computed: {
@@ -96,6 +115,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.dashboard-container {
+  min-width: 890px;
+}
 .dashboard {
   &-container {
     margin: 30px;
@@ -104,6 +126,9 @@ export default {
     font-size: 30px;
     line-height: 46px;
   }
+}
+.head {
+  display: flex;
 }
 .el-row {
     margin-bottom: 20px;

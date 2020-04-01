@@ -54,12 +54,27 @@ service.interceptors.response.use(
     // }
     const res = response
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 200) {
+    console.log('code',res);
+    
+    if (res.data.errcode !== 0 && !res.data.access_token) {
       Message({
-        message: res.message || 'Error',
+        message: res.errmsg || 'Error:errcode!=0',
         type: 'error',
         duration: 5 * 1000
       })
+      console.log(res);
+      
+    if(res.data.errmsg != 'ok' && res.data.errcode != 40001){
+      MessageBox.confirm('出现错误,请重新登录[errmsg != ok]', '确认登出', {
+            confirmButtonText: '重新登录',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(()=>{
+            store.dispatch('user/resetToken').then(()=>{
+              location.reload()
+            })
+          })
+    }
       return res
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
       // if (res.code === 50008 || res.code === 50012 || res.code === 50014) {

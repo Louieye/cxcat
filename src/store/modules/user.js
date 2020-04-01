@@ -1,14 +1,14 @@
 import { login, logout, getInfo, getMenu, getAccessToken } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, getTimeOut, setTimeOut, setAccessToken, getAccess_token, removeAccess, removeTimeOut } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import { constantRoutes } from '@/router'
 
 const getDefaultState = () => {
   return {
     // 云服务器后台token
-    access_token: '',
+    access_token: getAccess_token(),
     // 云服务器token过期时间
-    timeOut: 0,
+    timeOut: getTimeOut(),
     // 用户token
     token: getToken(),
     name: '',
@@ -64,6 +64,7 @@ const actions = {
       console.log(submitData);
       
       login(submitData).then(response => {
+        console.log('获取返回');
         
         const res = JSON.parse(response.data.data)
         console.log('登录信息：', res)
@@ -84,7 +85,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       const data = {
         env: 'lyj-app',
-        query: 'db.collection(\"adminUsers\").where({username:\"' + state.username + '\"}).get()'
+        query: 'db.collection(\"adminUsers\").where({token:\"' + state.token + '\"}).get()'
       }
       const submitData = JSON.stringify(data)
       getInfo(submitData).then(response => {
@@ -97,15 +98,16 @@ const actions = {
         }
 
         const { name, avatar, roles } = data
+        console.log('getinfo返回值',data);
         
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         commit('SET_ROLES', roles)
-        console.log(state.roles);
+        console.log(state);
         
         resolve(data)
       }).catch(error => {
-        reject(error)
+        reject('getinfo出错：')
       })
     })
   },
@@ -119,10 +121,12 @@ const actions = {
         console.log(res)
         commit('SET_ACCESS_TOKEN', res.access_token)
         commit('SET_TIMEOUT', res.expires_in * 1000 + time - 300000)
+        setTimeOut(res.expires_in * 1000 + time - 300000)
+        setAccessToken(res.access_token)
         console.log('设置accesstoken', state.access_token)
         console.log('time', res.expires_in * 1000 + time - 300000)
         console.log('设置timeOut', state.timeOut)
-        resolve()
+        resolve('getAccessToken success')
       }).catch(error => {
         reject(error)
       })
@@ -132,14 +136,18 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
-        resetRouter()
-        commit('RESET_STATE')
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+      // logout(state.token).then(() => {
+      //   removeToken() // must remove  token  first
+      //   resetRouter()
+      //   commit('RESET_STATE')
+      //   resolve()
+      // }).catch(error => {
+      //   reject(error)
+      // })
+      removeToken()
+      resetRouter()
+      commit('RESET_STATE')
+      resolve()
     })
   },
 
@@ -147,6 +155,8 @@ const actions = {
   resetToken({ commit }) {
     return new Promise(resolve => {
       removeToken() // must remove  token  first
+      removeAccess()
+      removeTimeOut()
       commit('RESET_STATE')
       resolve()
     })

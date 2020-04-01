@@ -53,6 +53,7 @@ export default {
     },
     async logout() {
       await this.$store.dispatch('user/logout')
+      this.$message.success('退出登录')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
   }

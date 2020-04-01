@@ -109,30 +109,14 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           const time = new Date().getTime()
-          if (time > this.$store.state.user.timeOut) {
-            console.log('请求access')
-            this.$store.dispatch('user/getAccessToken').then(() => {
-              this.loading = true
-              console.log('access设置完成');
-              
-              this.$store.dispatch('user/login', this.loginForm).then(() => {
-                console.log('登录成功');
-                
-                this.$router.push({ path: this.redirect || '/' })
-                this.loading = false
-              }).catch(() => {
-                this.loading = false
-              })
-            })
-          } else {
-            this.loading = true
-            this.$store.dispatch('user/login', this.loginForm).then(() => {
-              this.$router.push({ path: this.redirect || '/' })
-              this.loading = false
-            }).catch(() => {
-              this.loading = false
-            })
-          }
+          this.loading = true
+          this.$store.dispatch('user/login', this.loginForm).then(() => {
+            this.$router.push({ path: this.redirect || '/' })
+            this.$message.success('登录成功')
+            this.loading = false
+          }).catch(() => {
+            this.loading = false
+          })
         } else {
           console.log('error submit!!')
           return false

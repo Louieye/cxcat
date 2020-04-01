@@ -1,17 +1,11 @@
 import request from '@/utils/request'
+import store from '@/store'
 
-export function getTableData(){
+export function getTableData(data){
+    const access_token = store.getters.access_token
     return request({
-        url: '/vue-admin-template/home/table-data',
-        method: 'get'
+      url: 'tcb/databasequery?access_token=' + access_token,
+      method: 'post',
+      data
     })
-    
-}
-
-export function getHeaderData(){
-    return request({
-        url: '/vue-admin-template/home/header-data',
-        method: 'get'
-    })
-    
 }

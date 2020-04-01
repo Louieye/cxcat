@@ -14,6 +14,14 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 const whiteList = ['/login'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
+  const time = new Date().getTime()
+    if (!store.getters.timeOut || time > store.getters.timeOut) {
+      console.log('请求access')
+      const access = await store.dispatch('user/getAccessToken')
+      console.log(access);
+      
+    }
+    
   // start progress bar
   NProgress.start()
 
@@ -34,12 +42,15 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
+      console.log('name:', store.getters.name);
+      
       const hasGetUserInfo = store.getters.name
       if (hasGetUserInfo != '') {
         next()
       } else {
         try {
           console.log('获取用户信息');
+          console.log(store.getters.timeOut);
           
           // 获取用户信息
           await store.dispatch('user/getInfo')

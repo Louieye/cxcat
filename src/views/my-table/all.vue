@@ -17,10 +17,12 @@
     <el-table
     :data="tableData.filter(data => !search || data.id == search || data.name.toLowerCase().includes(search.toLowerCase()) || data.day.toLowerCase().includes(search.toLowerCase()) || data.date.toLowerCase().includes(search.toLowerCase()) || data.type.toLowerCase().includes(search.toLowerCase()) || data.teacher.toLowerCase().includes(search.toLowerCase()) || data.classroom.toLowerCase().includes(search.toLowerCase()))"
     style="width: 95%"
+    v-loading="loading"
     >
     <el-table-column
       label="ID"
       prop="id"
+      width="50px"
       >
     </el-table-column>
     <el-table-column
@@ -136,11 +138,15 @@
 
 <script>
 import { getClassTable, submitClassTable, deleteTable } from '@/api/classTable'
+import { getInfo } from '@/api/submitFn'
+import { jsonFormat } from '@/utils/jsonFormat'
 
 export default {
+  inject: ['reload'],
     data() {
       return {
         dialogVisible: false,
+        loading: true,
         form: {
             id: '',
             name: '',
@@ -187,19 +193,27 @@ export default {
         handleSubmit(){
             this.$refs['form'].validate((valid) => {
               if (valid) {
-                submitClassTable(this.form).then(res =>{
-                this.resetForm('form')
-                this.dialogVisible = false
-                this.$message({
-                    type: 'success',
-                    message: '操作成功'
-                })
-                setTimeout(()=>{
-                this.$router.go(0)
-              },1000)
+                const data = {
+                  env: 'lyj-app',
+                  query: 'db.collection(\"classTable\").add()',
+                  data: [this.form]
+                }
+                console.log(JSON.stringify(data));
+                submitClassTable(JSON.stringify(data)).then(res =>{
+                  if(jsonFormat(res).errcode && jsonFormat(res).errcode == 0){
+                    this.resetForm('form')
+                    this.dialogVisible = false
+                    this.$message.success('操作成功')
+                    this.reload()
+                  }else{
+                    this.resetForm('form')
+                    this.dialogVisible = false
+                    this.$message.error('操作失败')
+                    this.reload()
+                  } 
             })
               } else {
-                console.log('error submit!!');
+                console.log('数据格式不正确');
                 return false;
               }
             });
@@ -256,13 +270,19 @@ export default {
     }
     },
     async mounted(){
-        await getClassTable().then(res=>{
-            const table = res.data
-            table.forEach(item => {
-                item.date =item.startDate + '~' + item.endDate
-            })
-            this.tableData = table
-        })
+      const data = {
+        env: 'lyj-app',
+        query: 'db.collection(\"classTable\").get()'
+      }
+      const submitData = JSON.stringify(data)
+      const res = await getInfo(submitData)
+      const table = jsonFormat(res)
+      console.log(table)    
+      table.forEach(item => {
+          item.date = item.startDate + '~' + item.endDate
+      })
+      this.tableData = table
+      this.loading = false
     }
   }
 </script>

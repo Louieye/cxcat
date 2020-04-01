@@ -10,13 +10,23 @@ export function getAccessToken() {
 
 export function login(data) {
   const access_token = store.getters.access_token
-  console.log('api' ,access_token);
-  
-  return request({
-    url: 'tcb/databasequery?access_token=' + access_token,
-    method: 'post',
-    data
-  })
+  if(!access_token){
+    store.dispatch('user/getAccessToken').then(()=>{
+      console.log('api设置access');
+      console.log('api返回');
+      return request({
+        url: 'tcb/databasequery?access_token=' + access_token,
+        method: 'post',
+        data
+      })
+    })
+  }else{
+    return request({
+      url: 'tcb/databasequery?access_token=' + access_token,
+      method: 'post',
+      data
+    })
+  }
 }
 
 export function getInfo(data) {
