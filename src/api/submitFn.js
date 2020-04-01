@@ -1,42 +1,33 @@
 import request from '@/utils/request'
 import store from '@/store'
 
-//查询
-export function getInfo(data) {
+// 请求云数据库
+export function getInfo(query) {
+  const list = {
+    env: 'lyj-app',
+    query: query
+  }
+  console.log('【请求云数据库】', JSON.stringify(list))
   const access_token = store.getters.access_token
   return request({
     url: 'tcb/databasequery?access_token=' + access_token,
     method: 'post',
-    data
+    data: JSON.stringify(list)
   })
 }
 
-//插入
-export function addInfo(data) {
+// 请求云数据库
+export function submitInfo(query) {
+  const list = {
+    env: 'lyj-app',
+    query: query
+  }
+  console.log('【submit请求云数据库】', JSON.stringify(list))
   const access_token = store.getters.access_token
   return request({
-    url: 'tcb/databaseadd?access_token=' + access_token,
+    url: 'tcb/databasequery?access_token=' + access_token,
     method: 'post',
-    data
+    data: JSON.stringify(list)
   })
 }
 
-//删除
-export function deleteInfo(data) {
-    const access_token = store.getters.access_token
-    return request({
-      url: 'tcb/databasedelete?access_token=' + access_token,
-      method: 'post',
-      data
-    })
-}
-
-//更新
-export function updateInfo(data) {
-    const access_token = store.getters.access_token
-    return request({
-      url: 'tcb/databaseupdate?access_token=' + access_token,
-      method: 'post',
-      data
-    })
-}
