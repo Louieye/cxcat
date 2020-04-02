@@ -210,31 +210,30 @@ export default {
     handleSubmit() {
       this.$refs['form'].validate(async(valid) => {
         if (valid) {
-          if(this.isEdit == true){
+          if (this.isEdit == true) {
             const query = 'db.collection("classTable").where({id:' + JSON.stringify(this.form.id) + '}).update({data:' + JSON.stringify(this.form) + '})'
             const res = await updateInfo(query)
-            if(res.status == 200){
+            if (res.status == 200) {
               this.$message.success('修改成功')
               this.reload()
               this.isEdit = false
-            }else{
+            } else {
               this.$message.error('修改失败')
               this.isEdit = false
             }
-          }else{
-          const query = 'db.collection("classTable").add({data:[' + JSON.stringify(this.form) + ']})'
-          const res = await addInfo(query)
-          console.log('res', res)
-          if (res.status == 200) {
-            this.resetForm('form')
-            this.dialogVisible = false
-            this.$message.success('操作成功')
-            this.reload()
           } else {
-            this.resetForm('form')
-            this.dialogVisible = false
-            this.$message.error('操作失败')
-          }
+            const query = 'db.collection("classTable").add({data:[' + JSON.stringify(this.form) + ']})'
+            const res = await addInfo(query)
+            if (res.status == 200) {
+              this.resetForm('form')
+              this.dialogVisible = false
+              this.$message.success('操作成功')
+              this.reload()
+            } else {
+              this.resetForm('form')
+              this.dialogVisible = false
+              this.$message.error('操作失败')
+            }
           }
         } else {
           console.log('数据格式不正确')
@@ -242,14 +241,14 @@ export default {
         }
       })
     },
-    async submitEdit(){
+    async submitEdit() {
       const query = 'db.collection("classTable").where({id:[' + JSON.stringify(this.form.id) + ']}).update({data:' + JSON.stringify(this.form) + '})'
       const res = await updateInfo(query)
-      if(res.status == 200){
+      if (res.status == 200) {
         this.$message.success('修改成功')
         this.reload()
         this.isEdit = false
-      }else{
+      } else {
         this.$message.error('修改失败')
         this.isEdit = false
       }
@@ -271,22 +270,20 @@ export default {
       const id = row.id
       this.$confirm('确认删除？')
         .then(_ => {
-          const query = 'db.collection("classTable").where({id:'+ JSON.stringify(id) + '}).remove()'
-          console.log('【删除query】', query)
+          const query = 'db.collection("classTable").where({id:' + JSON.stringify(id) + '}).remove()'
           deleteInfo(query).then(res => {
-            console.log('【删除返回】', res)
-            if(res.status == 200){
+            if (res.status == 200) {
               this.$message({
-              type: 'success',
-              message: '操作成功'
-            })
-            this.reload()
-            }else{
+                type: 'success',
+                message: '操作成功'
+              })
+              this.reload()
+            } else {
               this.$message({
-              type: 'error',
-              message: '操作失败'
-            })
-            } 
+                type: 'error',
+                message: '操作失败'
+              })
+            }
           })
         })
         .catch(_ => {})

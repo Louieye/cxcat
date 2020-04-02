@@ -12,6 +12,7 @@
     <el-table
       :data="tableData"
       style="width: 90%"
+      v-loading="loading"
       border
     >
       <el-table-column
@@ -58,7 +59,7 @@
           <el-button
             size="mini"
             type="danger"
-            :disabled="scope.row.id === '1'?true:false"
+            :disabled="scope.row.token === 'admin-token'?true:false"
             icon="el-icon-warning-outline"
             @click="handleDelete(scope.$index, scope.row)"
           >删除</el-button>
@@ -66,90 +67,92 @@
       </el-table-column>
     </el-table>
     <el-dialog
-  title="添加/编辑用户"
-  :visible.sync="dialogVisible"
-  width="45%"
-  :before-close="handleClose">
-  <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-    <el-form-item label="ID" prop="id">
-    <span>{{ mkId() }}</span>
-  </el-form-item>
-  <el-form-item label="用户名" prop="username">
-    <el-input v-model="ruleForm.username"></el-input>
-  </el-form-item>
-  <el-form-item label="姓名" prop="name">
-    <el-input v-model="ruleForm.name"></el-input>
-  </el-form-item>
-  <el-form-item label="密码" prop="password">
-    <el-input v-model="ruleForm.password" show-password></el-input>
-  </el-form-item>
-  <el-form-item label="确认密码" prop="check">
-    <el-input v-model="ruleForm.check" show-password></el-input>
-  </el-form-item>
-  <el-form-item label="权限" prop="token">
-    <el-radio-group v-model="ruleForm.token">
-      <el-radio label="editor"></el-radio>
-      <el-radio label="admin"></el-radio>
-    </el-radio-group>
-  </el-form-item>
-  </el-form>
-  <span slot="footer" class="dialog-footer">
-    <el-button @click="resetForm('ruleForm')">取 消</el-button>
-    <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
-  </span>
-</el-dialog>
-<el-dialog
-  title="修改密码"
-  :visible.sync="dialogVisible2"
-  width="40%"
-  :before-close="handleClose">
-  <el-steps :active="active" finish-status="success">
-  <el-step title="请输入原始密码"></el-step>
-  <el-step title="请输入新密码"></el-step>
-  <el-step title="请确认新密码"></el-step>
-</el-steps>
-  <el-input v-model="ruleForm.check" show-password></el-input>
-  
-  <span slot="footer" class="dialog-footer">
-    <el-button type="danger" @click="dialogVisible2 = false">取 消</el-button>
-    <el-button type="primary" style="margin-top: 12px;" @click="next">{{this.active===2?'完成':'下一步'}}</el-button>
-  </span>
-</el-dialog>
+      title="添加/编辑用户"
+      :visible.sync="dialogVisible"
+      width="45%"
+      :before-close="handleClose"
+    >
+      <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="ID" prop="id">
+          <span>{{ mkId() }}</span>
+        </el-form-item>
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="ruleForm.username" />
+        </el-form-item>
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="ruleForm.name" />
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="ruleForm.password" show-password />
+        </el-form-item>
+        <el-form-item label="确认密码" prop="check">
+          <el-input v-model="ruleForm.check" show-password />
+        </el-form-item>
+        <el-form-item label="权限" prop="token">
+          <el-radio-group v-model="ruleForm.token">
+            <el-radio label="editor" />
+            <el-radio label="admin" />
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm('ruleForm')">取 消</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="修改密码"
+      :visible.sync="dialogVisible2"
+      width="40%"
+      :before-close="handleClose"
+    >
+      <el-steps :active="active" finish-status="success">
+        <el-step title="请输入原始密码" />
+        <el-step title="请输入新密码" />
+        <el-step title="请确认新密码" />
+      </el-steps>
+      <el-input v-model="ruleForm.check" show-password />
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="danger" @click="dialogVisible2 = false">取 消</el-button>
+        <el-button type="primary" style="margin-top: 12px;" @click="next">{{ this.active===2?'完成':'下一步' }}</el-button>
+      </span>
+    </el-dialog>
   </div>
 
 </template>
 
 <script>
-import { permissionInfo, submitInfo, submitChange, submitDelete } from '@/api/permission'
 import { getInfo, addInfo, deleteInfo, updateInfo } from '@/api/submitFn'
 import { jsonFormat } from '@/utils/jsonFormat'
 
 export default {
   inject: ['reload'],
   data() {
-    let checkPass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"));
+    const checkPass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
       } else if (value !== this.ruleForm.password) {
-        callback(new Error("两次输入密码不一致!"));
+        callback(new Error('两次输入密码不一致!'))
       } else {
-        callback();
+        callback()
       }
     }
-    let checkUser = (rule, value, callback) => {
+    const checkUser = (rule, value, callback) => {
       let flag = 0
       this.tableData.forEach(item => {
         if (value === item.username) {
           flag = 1
-      }
+        }
       })
-      if(flag === 1){
-        callback(new Error("用户名已存在！"))
-      }else{
+      if (flag === 1) {
+        callback(new Error('用户名已存在！'))
+      } else {
         callback()
       }
     }
     return {
+      loading: false,
       active: 0,
       tableData: [],
       ruleForm: {
@@ -188,67 +191,79 @@ export default {
       changeId: ''
     }
   },
+  watch: {
+    // 监听修改密码操作一半时退出，将步骤重置
+    dialogVisible2() {
+      if (this.dialogVisible === false) {
+        this.active = 0
+        this.ruleForm.check = ''
+        this.reCheck = ''
+      }
+    }
+  },
   async mounted() {
+    this.loading = true
     const query = 'db.collection("adminUsers").get()'
     await getInfo(query).then(res => {
       this.tableData = jsonFormat(res)
     })
+    this.loading = false
   },
   methods: {
     next() {
-        // if (this.active++ > 2) this.active = 0
-        //第一步
-        if(this.active === 0){
-          if(this.ruleForm.check === this.ruleForm.password){
-            this.ruleForm.check = ''
-            setTimeout(()=>{
-                this.active++
-              },100)
-          }else{
-            this.$message.error('密码错误')
-          }
+      // if (this.active++ > 2) this.active = 0
+      // 第一步
+      if (this.active === 0) {
+        if (this.ruleForm.check === this.ruleForm.password) {
+          this.ruleForm.check = ''
+          setTimeout(() => {
+            this.active++
+          }, 100)
+        } else {
+          this.$message.error('密码错误')
         }
-        //第二步
-        if(this.active === 1){
-          if(this.ruleForm.check.length < 6 || this.ruleForm.check.length > 16){
-            this.$message.error('密码长度在6-16字符')
-          }else if(this.ruleForm.check === this.ruleForm.password){
-            this.$message.error('新密码不得与原始密码相同')
-          }else{
-            this.reCheck = this.ruleForm.check
-            this.ruleForm.check = ''
-            //表单重置后会触发下一步的验证，所以加一个定时器，重置后再进入下一步
-            setTimeout(()=>{
-                this.active++
-              },100)
-          }
+      }
+      // 第二步
+      if (this.active === 1) {
+        if (this.ruleForm.check.length < 6 || this.ruleForm.check.length > 16) {
+          this.$message.error('密码长度在6-16字符')
+        } else if (this.ruleForm.check === this.ruleForm.password) {
+          this.$message.error('新密码不得与原始密码相同')
+        } else {
+          this.reCheck = this.ruleForm.check
+          this.ruleForm.check = ''
+          // 表单重置后会触发下一步的验证，所以加一个定时器，重置后再进入下一步
+          setTimeout(() => {
+            this.active++
+          }, 100)
         }
-        //第三步
-        if(this.active === 2){
-        if(this.ruleForm.check !== this.reCheck){
+      }
+      // 第三步
+      if (this.active === 2) {
+        if (this.ruleForm.check !== this.reCheck) {
           this.$message.error('两次输入密码不一致')
-        }else{
+        } else {
           // const data = {
           //   id: this.changeId,
           //   password: this.ruleForm.check
           // }
           const query = 'db.collection("adminUsers").where({id:' + JSON.stringify(this.changeId) + '}).update({data:{password:' + JSON.stringify(this.ruleForm.check) + '}})'
-          updateInfo(query).then(res=>{
-            if(res.status == 200){
+          updateInfo(query).then(res => {
+            if (res.status == 200) {
               this.$message.success('密码修改成功')
               this.dialogVisible2 = false
               this.active = 0
               this.changeId = ''
-            }else {
+            } else {
               this.$message.error('密码修改失败')
             }
             this.reload()
           })
         }
-        }
-      },
-    //生成ID
-    mkId(){
+      }
+    },
+    // 生成ID
+    mkId() {
       const ids = []
       this.tableData.forEach(item => {
         ids.push(parseInt(item.id))
@@ -263,76 +278,59 @@ export default {
       // this.ruleForm.username = this.tableData[index].username
       this.ruleForm.password = this.tableData[index].password
       // this.ruleForm.token = this.tableData[index].token
-      console.log(this.changeId);
-      
+      console.log(this.changeId)
     },
     handleDelete(index, row) {
       this.$confirm('确认删除？')
-          .then(_ => {
-            console.log(row.id);
-            const data = {
-              id: row.id
+        .then(_ => {
+          const query = 'db.collection("adminUsers").where({id:' + JSON.stringify(row.id) + '}).remove()'
+          deleteInfo(query).then(res => {
+            if (res.status == 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.reload()
             }
-            submitDelete(data).then(res=>{
-              if(res.code === 20000){
-                this.$message({
-                  type: 'success',
-                  message: '删除成功'
-                })
-                setTimeout(()=>{
-                this.$router.go(0)
-              },1000)
-              }
-            })
-            done()
           })
-          .catch(_ => {})
-      
+          done()
+        })
+        .catch(_ => {})
     },
-    handleAdd(){
+    handleAdd() {
       this.dialogVisible = true
     },
     handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            this.dialogVisible2 = false
-            this.resetForm('ruleForm')
-            done()
-          })
-          .catch(_ => {})
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.dialogVisible2 = false
+          this.resetForm('ruleForm')
+          done()
+        })
+        .catch(_ => {})
     },
     submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.dialogVisible = false
-            const query = 'db.collection("adminUsers").add({data:[' + JSON.stringify(this.ruleForm) + ']})'
-            addInfo(query).then(res=>{
-              if(res.status == 200){
-                this.$message({
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.dialogVisible = false
+          const query = 'db.collection("adminUsers").add({data:[' + JSON.stringify(this.ruleForm) + ']})'
+          addInfo(query).then(res => {
+            if (res.status == 200) {
+              this.$message({
                 type: 'success',
                 message: '操作成功'
               })
-              }
-              this.reload()
-            })
-          } else {
-            return false;
-          }
-        })
-      },
-      resetForm(formName) {
-        this.$refs[formName].resetFields();
-        this.dialogVisible = false
-      }
-  },
-  watch: {
-    //监听修改密码操作一半时退出，将步骤重置
-    dialogVisible2(){
-      if(this.dialogVisible === false){
-        this.active = 0
-        this.ruleForm.check = ''
-        this.reCheck = ''
-      }
+            }
+            this.reload()
+          })
+        } else {
+          return false
+        }
+      })
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
+      this.dialogVisible = false
     }
   }
 }
