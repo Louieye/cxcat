@@ -72,7 +72,7 @@
     <el-dialog
       title="添加/编辑课表"
       :visible.sync="dialogVisible"
-      width="40%"
+      width="600px"
       :before-close="handleClose"
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -141,14 +141,14 @@
 </template>
 
 <script>
-import { getClassTable, submitClassTable, deleteTable } from '@/api/classTable'
-import { submitInfo, getInfo } from '@/api/submitFn'
+import { getInfo, addInfo, deleteInfo, updateInfo } from '@/api/submitFn'
 import { jsonFormat } from '@/utils/jsonFormat'
 
 export default {
   inject: ['reload'],
   data() {
     return {
+      isEdit: false, // 判断是添加还是修改
       dialogVisible: false,
       loading: true,
       form: {
@@ -205,14 +205,27 @@ export default {
     handleEdit(index, row) {
       this.dialogVisible = true
       this.form = this.tableData.find(item => item.id == row.id)
+      this.isEdit = true
     },
     handleSubmit() {
       this.$refs['form'].validate(async(valid) => {
         if (valid) {
+          if(this.isEdit == true){
+            const query = 'db.collection("classTable").where({id:' + JSON.stringify(this.form.id) + '}).update({data:' + JSON.stringify(this.form) + '})'
+            const res = await updateInfo(query)
+            if(res.status == 200){
+              this.$message.success('修改成功')
+              this.reload()
+              this.isEdit = false
+            }else{
+              this.$message.error('修改失败')
+              this.isEdit = false
+            }
+          }else{
           const query = 'db.collection("classTable").add({data:[' + JSON.stringify(this.form) + ']})'
-          const res = await submitInfo(query)
+          const res = await addInfo(query)
           console.log('res', res)
-          if (res.errcode && res.errcode == 0) {
+          if (res.status == 200) {
             this.resetForm('form')
             this.dialogVisible = false
             this.$message.success('操作成功')
@@ -221,13 +234,25 @@ export default {
             this.resetForm('form')
             this.dialogVisible = false
             this.$message.error('操作失败')
-            this.reload()
+          }
           }
         } else {
           console.log('数据格式不正确')
           return false
         }
       })
+    },
+    async submitEdit(){
+      const query = 'db.collection("classTable").where({id:[' + JSON.stringify(this.form.id) + ']}).update({data:' + JSON.stringify(this.form) + '})'
+      const res = await updateInfo(query)
+      if(res.status == 200){
+        this.$message.success('修改成功')
+        this.reload()
+        this.isEdit = false
+      }else{
+        this.$message.error('修改失败')
+        this.isEdit = false
+      }
     },
     async handleAdd() {
       this.form = {
@@ -246,14 +271,22 @@ export default {
       const id = row.id
       this.$confirm('确认删除？')
         .then(_ => {
-          deleteTable({ id: id }).then(res => {
-            this.$message({
+          const query = 'db.collection("classTable").where({id:'+ JSON.stringify(id) + '}).remove()'
+          console.log('【删除query】', query)
+          deleteInfo(query).then(res => {
+            console.log('【删除返回】', res)
+            if(res.status == 200){
+              this.$message({
               type: 'success',
               message: '操作成功'
             })
-            setTimeout(() => {
-              this.$router.go(0)
-            }, 1000)
+            this.reload()
+            }else{
+              this.$message({
+              type: 'error',
+              message: '操作失败'
+            })
+            } 
           })
         })
         .catch(_ => {})
@@ -265,6 +298,7 @@ export default {
       this.$confirm('确认关闭？')
         .then(_ => {
           this.dialogVisible = false
+          this.isEdit = false
           done()
         })
         .catch(_ => {})

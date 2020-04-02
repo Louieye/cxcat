@@ -49,7 +49,7 @@
         </template>
       </el-table-column>
       <el-table-column label="操作">
-        <template slot-scope="scope">
+        <template slot-scope="scope" class="caozuo">
           <el-button
             size="mini"
             icon="el-icon-s-tools"
@@ -121,8 +121,11 @@
 
 <script>
 import { permissionInfo, submitInfo, submitChange, submitDelete } from '@/api/permission'
+import { getInfo, addInfo, deleteInfo, updateInfo } from '@/api/submitFn'
+import { jsonFormat } from '@/utils/jsonFormat'
 
 export default {
+  inject: ['reload'],
   data() {
     let checkPass = (rule, value, callback) => {
       if (value === "") {
@@ -186,8 +189,9 @@ export default {
     }
   },
   async mounted() {
-    await permissionInfo().then(res => {
-      this.tableData = res.data
+    const query = 'db.collection("adminUsers").get()'
+    await getInfo(query).then(res => {
+      this.tableData = jsonFormat(res)
     })
   },
   methods: {
@@ -224,21 +228,21 @@ export default {
         if(this.ruleForm.check !== this.reCheck){
           this.$message.error('两次输入密码不一致')
         }else{
-          const data = {
-            id: this.changeId,
-            password: this.ruleForm.check
-          }
-          submitChange(data).then(res=>{
-            this.$message({
-              type: 'success',
-              message: '修改成功'
-            })
-            this.dialogVisible2 = false
-            this.active = 0
-            this.changeId = ''
-            setTimeout(()=>{
-                this.$router.go(0)
-              },1000)
+          // const data = {
+          //   id: this.changeId,
+          //   password: this.ruleForm.check
+          // }
+          const query = 'db.collection("adminUsers").where({id:' + JSON.stringify(this.changeId) + '}).update({data:{password:' + JSON.stringify(this.ruleForm.check) + '}})'
+          updateInfo(query).then(res=>{
+            if(res.status == 200){
+              this.$message.success('密码修改成功')
+              this.dialogVisible2 = false
+              this.active = 0
+              this.changeId = ''
+            }else {
+              this.$message.error('密码修改失败')
+            }
+            this.reload()
           })
         }
         }
@@ -301,17 +305,17 @@ export default {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.dialogVisible = false
-            submitInfo(this.ruleForm).then(res=>{
-              this.$message({
+            const query = 'db.collection("adminUsers").add({data:[' + JSON.stringify(this.ruleForm) + ']})'
+            addInfo(query).then(res=>{
+              if(res.status == 200){
+                this.$message({
                 type: 'success',
                 message: '操作成功'
               })
-              setTimeout(()=>{
-                this.$router.go(0)
-              },1000)
+              }
+              this.reload()
             })
           } else {
-            console.log('error submit!!');
             return false;
           }
         })
@@ -347,5 +351,9 @@ export default {
       margin-left: 5%;
       margin-top: 1%;
       font-size: 20px;
+    }
+    .caozuo {
+      display: flex;
+      flex-wrap: nowrap;
     }
 </style>
