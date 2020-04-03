@@ -20,7 +20,8 @@
 </template>
 
 <script>
-import { getClassTable } from '@/api/classTable'
+import { getInfo, addInfo, deleteInfo, updateInfo } from '@/api/submitFn'
+import { jsonFormat } from '@/utils/jsonFormat'
 
 export default {
     data() {
@@ -31,24 +32,23 @@ export default {
         }
     },
     async mounted(){
-        await getClassTable().then(res=>{
-            const table = res.data
-            //将课程按时间排序
-            function compare(item){
-                return function(a,b){
-                    return(a[item].split(':')[0] - b[item].split(':')[0])
-                }
+        const query = 'db.collection("classTable").get()'
+        const res = await getInfo(query)
+        const data = jsonFormat(res)
+        const table = data.filter(item => item.day == new Date().getDay())
+        //将课程按时间排序
+        function compare(item){
+            return function(a,b){
+                return(a[item].split(':')[0] - b[item].split(':')[0])
             }
-            table.sort(compare('time'))
-            if(this.$store.state.user.roles != 'admin'){
-                const day = new Date().getDay()
-                const teacher = this.$store.state.user.name
-                this.classTable = table.filter(item => item.day == day && item.teacher == teacher)  
-            }else{
-                this.classTable = table
-            }
-            
-        })
+        }
+        table.sort(compare('time'))
+        if(this.$store.state.user.roles != 'admin'){
+            const teacher = this.$store.state.user.name
+            this.classTable = table.filter(item => item.teacher == teacher)  
+        }else{
+            this.classTable = table
+        }
     },
     methods:{
         getTime(){

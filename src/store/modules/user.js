@@ -64,17 +64,16 @@ const actions = {
       console.log(submitData);
       
       login(submitData).then(response => {
-        console.log('获取返回');
-        
         const res = JSON.parse(response.data.data)
         console.log('登录信息：', res)
-
+        if(res.password != password){
+          reject('用户名或密码错误')
+        }
         commit('SET_TOKEN', res.token)
         commit('SET_USERNAME', username)
         setToken(res.token)
         resolve()
       }).catch(error => {
-        console.log()
         reject(error)
       })
     })

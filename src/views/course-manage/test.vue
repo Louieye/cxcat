@@ -5,6 +5,7 @@
       @click="handleAdd"
     ><i class="el-icon-circle-plus-outline" />  添加</el-button>
     <el-table
+    v-loading="loading"
       style="width: 100%"
       :data="tableData.filter(data => !search || data.id === search)"
     >
@@ -90,78 +91,102 @@
 
 <script>
 import addForm from './addForm'
+import { getInfo, addInfo, deleteInfo, updateInfo } from '@/api/submitFn'
+import { jsonFormat } from '@/utils/jsonFormat'
 import { formatDate } from '@/utils/date'
-import { testSubmit, getTest, deleteTest } from '@/api/test'
 
 export default {
+  inject: ['reload'],
   components: {
     addForm
   },
   data() {
     return {
+      isEdit: false,
+      loading: true,
       targetData: {},
       tableData: [],
       search: '',
       dialogFormVisible: false,
-      form: {
-      }
+      form: {}
     }
   },
   async mounted() {
-    const table = await getTest()
-    this.tableData = table.data
+    const query = 'db.collection("test").get()'
+    const res = await getInfo(query)
+    const data = jsonFormat(res)
+    this.tableData = data
+    this.loading = false
   },
   methods: {
     // 添加方法
     handleAdd(index, row) {
       this.targetData = {}
       this.dialogFormVisible = true
+      this.isEdit = false
     },
     // 编辑方法
     handleEdite(row) {
       this.targetData = row
       this.dialogFormVisible = true
+      this.isEdit = true
     },
     // 删除方法
     handleDelete(row) {
       this.$confirm('确认删除？')
-        .then(_ => {
-          deleteTest(row.id).then(res => {
-            if (res.code === 20000) {
-              this.$message({
-                type: 'success',
-                message: '删除成功'
-              })
-              this.$router.go(0)
-            }
+          .then(_ => {
+            const query = 'db.collection("test").where({id:' + JSON.stringify(row.id) + '}).remove()'
+            deleteInfo(query).then(res => {
+              if (res.status == 200) {
+                this.$message({
+                  type: 'success',
+                  message: '删除成功'
+                })
+                this.reload()
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: '删除失败'
+                })
+              }
+            })
           })
-        })
-        .catch(_ => {})
+          .catch(_ => {})
     },
     // 关闭dialog
     handleClose() {
       this.$confirm('确认关闭？')
         .then(_ => {
           this.dialogFormVisible = false
+          this.isEdit = false
         })
         .catch(_ => {})
     },
     // 添加表单请求
     async addTable(data) {
       const newTest = this.add(data)
-      await testSubmit(newTest).then(res => {
-        this.dialogFormVisible = false
-        if (res.data === '1') {
-          this.tableData.push(newTest)
-          this.$message({
-            type: 'success',
-            message: '添加成功'
-          })
-        } else if (res.data === '2') {
-          const index = this.tableData.findIndex(item => item.id === newTest.id)
-          this.tableData[index] = newTest
+      if(this.isEdit == false){
+        const query = 'db.collection("test").add({data:[' + JSON.stringify(newTest) + ']})'
+        const res = await addInfo(query)
+        if (res.status == 200) {
+          this.dialogVisible = false
+          this.$message.success('添加成功')
+          this.reload()
+        } else {
+          this.dialogVisible = false
+          this.$message.error('添加失败')
         }
-      })
+      }else {
+        const query = 'db.collection("test").where({id:' + JSON.stringify(newTest.id) + '}).update({data:' + JSON.stringify(newTest) + '})'
+        const res = await updateInfo(query)
+        if (res.status == 200) {
+          this.$message.success('修改成功')
+          this.reload()
+        } else {
+          this.$message.error('修改失败')
+        }
+        this.isEdit = false
+      }
     },
     add(data) {
       const newTest = {}
@@ -179,17 +204,14 @@ export default {
       newTest.author = this.$store.state.user.name
       return newTest
     },
-    changeSwitch(data) {
-      testSubmit(data).then(res => {
-        if (res.code === 20000) {
-          this.$message({
-            type: 'success',
-            message: '更改成功'
-          })
-        } else {
-          this.$message.error('更改失败')
-        }
-      })
+    async changeSwitch(row) {
+      const query = 'db.collection("test").where({id:' + JSON.stringify(row.id) + '}).update({data:{isActive:' + JSON.stringify(row.isActive) + '}})'
+      const res = await updateInfo(query)
+      if (res.status == 200) {
+        this.$message.success('修改成功')
+      } else {
+        this.$message.error('修改失败')
+      }
     }
   }
 }

@@ -106,7 +106,7 @@ export const constantRoutes = [
       path: 'index',
       name: 'reply',
       component: () => import('@/views/reply/index'),
-      meta: { title: '反馈系统', icon: 'example' }
+      meta: { title: '课程预约', icon: 'example' }
     }]
   },
   {
@@ -214,13 +214,13 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/goods/index',
     name: 'goods',
-    meta: { title: '商品管理', icon: 'table' },
+    meta: { title: '课程管理', icon: 'table' },
     children: [
       {
         path: 'index',
         name: 'goods-index',
         component: () => import('@/views/goods/index'),
-        meta: { title: '商品管理', icon: 'example' }
+        meta: { title: '课程管理', icon: 'example' }
       }
     ]
   },

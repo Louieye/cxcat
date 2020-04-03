@@ -110,11 +110,12 @@ export default {
         if (valid) {
           const time = new Date().getTime()
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
+          this.$store.dispatch('user/login', this.loginForm).then((res) => {
             this.$router.push({ path: this.redirect || '/' })
             this.$message.success('登录成功')
             this.loading = false
-          }).catch(() => {
+          }).catch((error) => {
+            this.$message.error(error)
             this.loading = false
           })
         } else {
