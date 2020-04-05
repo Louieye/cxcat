@@ -202,9 +202,9 @@ export default {
         },
         //提交表单
         handleSubmit(){
-            const list = this.form.list.split(',')
-            this.form.list = list
-            console.log('list', list);
+            // const list = this.form.list.split(',')
+            // this.form.list = list
+            // console.log('list', list);
             
             this.$refs['form'].validate( async(valid) => {
               if (valid) {
@@ -220,6 +220,11 @@ export default {
                     this.isEdit = false
                   }
                 }else{
+                  if(this.form.list){
+                    const list = this.form.list.split(',')
+                    this.form.list = list
+                    console.log('list', list);
+                  }
                   const query = 'db.collection("goods").add({data:[' + JSON.stringify(this.form) + ']})'
                   const res = await addInfo(query)
                   if (res.status == 200) {

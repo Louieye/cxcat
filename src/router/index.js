@@ -60,19 +60,19 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/example/table',
     name: 'Example',
-    meta: { title: '课堂管理', icon: 'form' },
+    meta: { title: '课堂管理', icon: 'lanmuguanli' },
     children: [
       {
         path: 'table',
         name: 'Table',
         component: () => import('@/views/course-manage/reply'),
-        meta: { title: '课程小结', icon: 'example' }
+        meta: { title: '课程小结', icon: 'shiyongwendang' }
       },
       {
         path: 'tree',
         name: 'Tree',
         component: () => import('@/views/course-manage/test'),
-        meta: { title: '小测验', icon: 'example' }
+        meta: { title: '小测验', icon: 'ceshishenqing' }
       }
     ]
   },
@@ -81,19 +81,19 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/works/index',
     name: 'works',
-    meta: { title: '作品管理', icon: 'table' },
+    meta: { title: '作品管理', icon: 'lanmuguanli' },
     children: [
       {
         path: 'index',
         name: 'works-all',
         component: () => import('@/views/works/index'),
-        meta: { title: '作品管理', icon: 'example' }
+        meta: { title: '作品管理', icon: 'icon_yingyongguanli' }
       },
       {
         path: 'upload',
         name: 'works-upload',
         component: () => import('@/views/works/upload'),
-        meta: { title: '作品上传', icon: 'example' }
+        meta: { title: '作品上传', icon: 'shangchuan' }
       }
     ]
   },
@@ -106,7 +106,7 @@ export const constantRoutes = [
       path: 'index',
       name: 'reply',
       component: () => import('@/views/reply/index'),
-      meta: { title: '课程预约', icon: 'example' }
+      meta: { title: '课程预约', icon: 'form' }
     }]
   },
   {
@@ -193,19 +193,19 @@ export const asyncRoutes = [
         path: 'today',
         name: 'today',
         component: () => import('@/views/my-table/today'),
-        meta: { title: '今日课表', icon: 'example' }
+        meta: { title: '今日课表', icon: 'daibanshixiang' }
       },
       {
         path: 'all-course',
         name: 'all-course',
         component: () => import('@/views/my-table/all'),
-        meta: { title: '全部课表', icon: 'example' }
+        meta: { title: '全部课表', icon: 'biaodanzujian-biaoge' }
       },
       {
         path: 'course-edit',
         name: 'course-edit',
         component: () => import('@/views/my-table/course-edit'),
-        meta: { title: '课表管理', icon: 'example' }
+        meta: { title: '课表管理', icon: 'bianji' }
       }
     ]
   },
@@ -220,7 +220,7 @@ export const asyncRoutes = [
         path: 'index',
         name: 'goods-index',
         component: () => import('@/views/goods/index'),
-        meta: { title: '课程管理', icon: 'example' }
+        meta: { title: '课程管理', icon: 'lanmuguanli' }
       }
     ]
   },
@@ -229,7 +229,7 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/orders/my-orders',
     name: 'orders',
-    meta: { title: '订单管理', icon: 'table' },
+    meta: { title: '订单管理', icon: 'form' },
     children: [
       {
         path: 'my',
