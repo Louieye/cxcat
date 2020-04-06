@@ -28,6 +28,11 @@ npm run build:stage
 # 构建生产环境
 npm run build:prod
 ```
+## 注意
+
+```bash
+# master分支为mock数据，test2分支使用小程序云开发HTTP接口
+```
 
 ## 其它
 
