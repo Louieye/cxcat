@@ -4,21 +4,21 @@
       <el-col :span="4">
         <el-card class="box-card">
           <span>
-            今日预约：{{tadayApoin}}
+            今日预约：{{ tadayApoin }}
           </span>
         </el-card>
       </el-col>
       <el-col :span="4">
         <el-card class="box-card">
           <span>
-            未确认：{{notCheck}}
+            未确认：{{ notCheck }}
           </span>
         </el-card>
       </el-col>
       <el-col :span="4">
         <el-card class="box-card">
           <span>
-            已完成：{{isDone}}
+            已完成：{{ isDone }}
           </span>
         </el-card>
       </el-col>
@@ -31,8 +31,8 @@
       </el-col>
     </el-row>
     <el-table
-      :default-sort = "{prop: 'date', order: 'descending'}"
       v-loading="loading"
+      :default-sort="{prop: 'date', order: 'descending'}"
       :data="tableData"
       class="table"
     >
@@ -65,44 +65,70 @@
         label="孩子年龄"
       />
       <el-table-column
-      prop="tag"
-      label="状态"
-      :filters="[{ text: '已完成', value: 2 }, { text: '预约中', value: 1 }, { text: '未确认', value: 0 }]"
-      :filter-method="filterTag"
-      filter-placement="bottom-end">
-      <template slot-scope="scope">
-        <el-tag
-          :type="scope.row.tag == 0 ? 'warning' : scope.row.tag == 1 ? 'primary' : 'success'"
-          disable-transitions>{{scope.row.tag == 0?'未确认' : scope.row.tag == 1 ? '预约中' : '已完成'}}</el-tag>
-      </template>
-    </el-table-column>
+        prop="tag"
+        label="状态"
+        :filters="[{ text: '已完成', value: 2 }, { text: '预约中', value: 1 }, { text: '未确认', value: 0 }]"
+        :filter-method="filterTag"
+        filter-placement="bottom-end"
+      >
+        <template slot-scope="scope">
+          <el-tag
+            :type="scope.row.tag == 0 ? 'warning' : scope.row.tag == 1 ? 'primary' : 'success'"
+            disable-transitions
+          >{{ scope.row.tag == 0?'未确认' : scope.row.tag == 1 ? '预约中' : '已完成' }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         label="操作"
         width="170"
       >
         <template slot-scope="scope">
           <el-button type="success" icon="el-icon-check" circle @click="handleCheck(scope.$index, scope.row)" />
-          <el-button type="primary" icon="el-icon-edit" circle />
+          <el-button type="primary" icon="el-icon-edit" circle @click="handleEdit(scope.row)" />
           <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row)" />
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog
+      title="修改预约信息"
+      :visible.sync="dialogVisible"
+      width="600px"
+      :before-close="handleClose"
+    >
+      <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="预约课程">
+          <el-input v-model="form.title" disabled />
+        </el-form-item>
+        <el-form-item label="预约时间">
+          <el-input v-model="form.date" />
+        </el-form-item>
+        <el-form-item label="反馈信息">
+          <el-input v-model="form.desc" type="textarea" />
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="handleSubmit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getInfo, addInfo, deleteInfo, updateInfo } from '@/api/submitFn'
+import { getInfo, deleteInfo, updateInfo } from '@/api/submitFn'
 import { jsonFormat } from '@/utils/jsonFormat'
 
 export default {
   inject: ['reload'],
   data() {
     return {
+      dialogVisible: false,
       loading: true,
       tadayApoin: 0,
       notCheck: 0,
       isDone: 0,
-      tableData: []
+      tableData: [],
+      form: {}
     }
   },
   async mounted() {
@@ -140,68 +166,92 @@ export default {
           })
         })
     },
-    async handleCheck(index, row){
-      if(row.tag == 0){
+    handleEdit(row) {
+      this.form = this.tableData.find(item => item._id == row._id)
+      this.dialogVisible = true
+      console.log(this.form)
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.dialogVisible = false
+          this.form = {}
+          done()
+        })
+        .catch(_ => {})
+    },
+    async handleSubmit() {
+      const query = 'db.collection("appointment").where({_id:' + JSON.stringify(this.form._id) + '}).update({data:' + JSON.stringify(this.form) + '})'
+      const res = await updateInfo(query)
+      if (res.status == 200) {
+        this.$message.success('修改成功')
+        this.reload()
+      } else {
+        this.$message.error('修改失败')
+      }
+    },
+    async handleCheck(index, row) {
+      if (row.tag == 0) {
         this.tableData.find(item => item._id == row._id).tag = 1
         const query = 'db.collection("appointment").where({_id:' + JSON.stringify(row._id) + '}).update({data:{tag:1}})'
         const res = await updateInfo(query)
-        if(res.status == 200){
+        if (res.status == 200) {
           this.$message.success('确认成功')
         }
-      }else{
+      } else {
         this.$message.warning('无效操作, 预约已确认或已完成')
       }
     },
     formatter(row, column) {
-      return row.address;
+      return row.address
     },
     filterTag(value, row) {
-      return row.tag === value;
+      return row.tag === value
     },
     filterHandler(value, row, column) {
-      const property = column['property'];
-      return row[property] === value;
+      const property = column['property']
+      return row[property] === value
     },
-    checkTime(){
+    checkTime() {
       const now = new Date().getTime()
       let sum = 0
       this.tableData.forEach((item, index) => {
         let date = item.date
-        date = date.replace('年','')
-        date = date.replace('月','')
-        date = date.replace('日','')
-        let appoinDate = new Date(date).getTime()
-        if(now > appoinDate){
+        date = date.replace('年', '')
+        date = date.replace('月', '')
+        date = date.replace('日', '')
+        const appoinDate = new Date(date).getTime()
+        if (now > appoinDate) {
           this.tableData[index].tag = 2
           sum++
         }
       })
       this.isDone = sum
     },
-    getTodayApoin(){
+    getTodayApoin() {
       let sum = 0
       const today = new Date()
       this.tableData.forEach((item, index) => {
         let date = item.date
-        date = date.replace('年','')
-        date = date.replace('月','')
-        date = date.replace('日','')
-        let appoinDate = new Date(date)
-        if(today.getFullYear() == appoinDate.getFullYear() && today.getMonth() == appoinDate.getMonth() && today.getDate() == appoinDate.getDate()){
+        date = date.replace('年', '')
+        date = date.replace('月', '')
+        date = date.replace('日', '')
+        const appoinDate = new Date(date)
+        if (today.getFullYear() == appoinDate.getFullYear() && today.getMonth() == appoinDate.getMonth() && today.getDate() == appoinDate.getDate()) {
           sum++
         }
       })
       this.tadayApoin = sum
     },
-    getNotCheck(){
-    let sum = 0
-    this.tableData.forEach((item, index) => {
-      if(item.tag == 0){
-        sum++
-      }
-    })
-    this.notCheck = sum
-  }
+    getNotCheck() {
+      let sum = 0
+      this.tableData.forEach((item, index) => {
+        if (item.tag == 0) {
+          sum++
+        }
+      })
+      this.notCheck = sum
+    }
   }
 }
 </script>
