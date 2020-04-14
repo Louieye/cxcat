@@ -1,13 +1,21 @@
 <template>
   <div class="mainBox">
+    <el-button type="primary" class="addButton" @click="handleAdd">添加</el-button>
     <el-table
       ref="filterTable"
       :data="tableData"
       style="width: 95%"
+      v-loading="loading"
     >
+    <el-table-column
+        prop="id"
+        label="课程ID"
+        sortable
+        column-key="id"
+      />
       <el-table-column
         prop="date"
-        label="日期"
+        label="提交日期"
         sortable
         column-key="date"
       />
@@ -23,11 +31,7 @@
         sortable
         column-key="teacher"
       />
-      <el-table-column
-        prop="updateDate"
-        label="更新时间"
-      />
-      <el-table-column
+      <!-- <el-table-column
         prop="tag"
         label="状态"
         :filters="[{ text: '已提交', value: '已提交' }, { text: '未提交', value: '未提交' }]"
@@ -40,7 +44,7 @@
             disable-transitions
           >{{ scope.row.tag }}</el-tag>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         label="操作"
         width="200"
@@ -67,18 +71,24 @@
       </el-table-column>
     </el-table>
     <el-dialog
-      title="小结内容"
+      title="内容"
       :visible.sync="dialogVisible"
       width="800px"
       :before-close="handleClose"
     >
-      <el-form ref="form" label-width="80px" size="mini">
-        <el-form-item label="内容">
-          <el-input v-model="desc" type="textarea" />
+      <el-form ref="form" :model="form" label-width="80px" size="mini">
+        <el-form-item label="课程ID" prop="id">
+          <el-input v-model="form.id" />
+        </el-form-item>
+        <el-form-item label="课程名" prop="course">
+          <el-input v-model="form.course" />
+        </el-form-item>
+        <el-form-item label="内容" prop="desc">
+          <el-input v-model="form.desc" type="textarea" />
         </el-form-item>
         <el-form-item size="large" class="el-form-button">
-          <el-button ref="content" type="primary" @click="onSubmit">提交</el-button>
-          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button ref="content" type="primary" @click="submitEdit">提交</el-button>
+          <el-button @click="Close">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -95,66 +105,81 @@
 </template>
 
 <script>
-import { getReplyData, submitReply } from '@/api/reply'
+import { getInfo, addInfo, deleteInfo, updateInfo } from '@/api/submitFn'
+import { jsonFormat } from '@/utils/jsonFormat'
 import { formatDate } from '@/utils/date'
 
 export default {
+  inject: ['reload'],
   data() {
     return {
-      index: '',
+      loading: true,
+      isAdd: false,
       dialogVisible: false,
       cardShow: false,
+      tableData: [],
       desc: '',
-      tableData: []
+      form: {
+        id: '',
+        course: '',
+        date: '',
+        desc: '',
+        teacher: ''
+      }
     }
   },
   async mounted() {
-    const {data: table} = await getReplyData()
+    const query = 'db.collection("reply").get()'
+    const res = await getInfo(query)
+    const data = jsonFormat(res)
     const roles = this.$store.state.user.roles
     if(roles !='admin'){
       const name = this.$store.state.user.name
-      this.tableData = table.filter(item => item.teacher === name)
+      this.tableData = data.filter(item => item.teacher === name)
     }else{
-      this.tableData = table
+      this.tableData = data
     }
-    
+    this.loading = false
   },
   methods: {
     handleClose(done) {
       this.$confirm('确认关闭？')
         .then(_ => {
+          this.resetForm()
+          this.isAdd = false
           done()
         })
         .catch(_ => {})
     },
+    Close(){
+      this.dialogVisible = false
+      this.resetForm()
+    },
     handleEdit(index, row) {
-      if (this.index !== row.id) {
-        this.desc = ''
-      }
-      this.index = row.id
-      this.desc = this.tableData.find(item=> item.id === row.id).desc
+      this.form = this.tableData.find(item=> item.id === row.id)
       this.dialogVisible = true
       this.cardShow = false
     },
     async handleDelete(index, row) {
       this.$confirm('确认删除？')
         .then(_ => {
-          this.tableData.find(item=>item.id === row.id).desc = ''
-          this.tableData.find(item=>item.id === row.id).updateDate = ''
-          this.tableData.find(item=>item.id === row.id).tag = '未提交'
+          // this.tableData.find(item=>item.id === row.id).tag = '未提交'
           this.cardShow = false
-          submitReply(this.tableData.find(item=>item.id === row.id)).then(res => {
-            if (res.code === 20000) {
-              console.log(res)
-              this.$message({
-                type: 'success',
-                message: '删除成功'
-              })
-            } else {
-              this.$message.error('删除失败')
-              console.log(res)
-            }
-          })
+          const query = 'db.collection("reply").where({id:' + JSON.stringify(row.id) + '}).remove()'
+            deleteInfo(query).then(res => {
+              if (res.status == 200) {
+                this.$message({
+                  type: 'success',
+                  message: '删除成功'
+                })
+                this.reload()
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: '删除失败'
+                })
+              }
+            })
         })
         .catch(_ => {})
     },
@@ -164,24 +189,48 @@ export default {
     filterTag(value, row) {
       return row.tag === value
     },
-    async onSubmit() {
+    async submitEdit() {
       const date = new Date().getTime()
-      const index = this.tableData.findIndex(item => item.id === this.index)
-      this.tableData[index].updateDate = formatDate(date)
-      this.tableData[index].desc = this.desc
-      this.tableData[index].tag = '已提交'
-      const res = await submitReply(this.tableData[index])
-      if (res) {
-        this.$message({
-          type: 'success',
-          message: '提交成功'
-        })
-      } else {
-        this.$message.error('提交失败')
-      }
-      this.index = ''
-      this.desc = ''
+      this.form.date = formatDate(date)
+      this.form.teacher = this.$store.state.user.name
+      if(this.isAdd == false){
+      const query = 'db.collection("reply").where({id:' + JSON.stringify(this.form.id) + '}).update({data:' + JSON.stringify(this.form) + '})'
+      const res = await updateInfo(query)
       this.dialogVisible = false
+      if (res.status == 200) {
+        this.$message.success('修改成功')
+        this.reload()
+      } else {
+        this.$message.error('修改失败')
+      }
+      }else{
+        const query = 'db.collection("reply").add({data:[' + JSON.stringify(this.form) + ']})'
+        const res = await addInfo(query)
+        if (res.status == 200) {
+          this.resetForm('form')
+          this.dialogVisible = false
+          this.$message.success('添加成功')
+          this.reload()
+        } else {
+          this.resetForm('form')
+          this.dialogVisible = false
+          this.$message.error('添加失败')
+        }
+      }
+      this.isAdd = false
+    },
+    resetForm() {
+      this.form = {
+        id: '',
+        course: '',
+        date: '',
+        desc: '',
+        teacher: ''
+      }
+    },
+    handleAdd() {
+      this.dialogVisible = true
+      this.isAdd = true
     },
     showCard(index, row) {
       this.cardShow = true
@@ -195,6 +244,11 @@ export default {
     .mainBox {
       min-width:900px;
       margin-top: 40px;
+    }
+    .addButton {
+      margin-left: 2.5%;
+      width: 100px;
+      margin-bottom: 2%;
     }
     .el-table {
       margin: 0 auto;

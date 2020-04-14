@@ -1,12 +1,12 @@
 <template>
   <div class="mainBox">
-<el-card class="box-card">
+<el-card class="box-card" v-loading="loading">
     <div class="img">
         <img src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif" alt="">
     </div>
     <h3 class="name">{{ tableData.name }}</h3>
     <div class="button">
-        <el-button type="primary" icon="el-icon-edit" circle></el-button>
+        <el-button type="primary" icon="el-icon-edit" circle @click="handleEdit"></el-button>
         <el-button type="info" icon="el-icon-message" circle></el-button>
         <el-button type="warning" icon="el-icon-star-off" circle></el-button>
     </div>
@@ -18,36 +18,68 @@
         <h4>邮箱：{{ tableData.email }}</h4>
     </div>
 </el-card>
+<el-dialog
+      title="编辑个人信息"
+      :visible.sync="dialogVisible"
+      width="600px"
+      :before-close="handleClose"
+    >
+      <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="form.name" style="width: 25%" />
+        </el-form-item>
+        <el-form-item label="年龄" prop="age">
+          <el-input v-model="form.age" style="width: 50%" />
+        </el-form-item>
+        <el-form-item label="性别" prop="sex">
+          <el-radio v-model="form.sex" label="男">男</el-radio>
+          <el-radio v-model="form.sex" label="女">女</el-radio>
+        </el-form-item>
+        <el-form-item label="手机" prop="phone">
+          <el-input v-model="form.phone" style="width: 50%" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email" style="width: 50%" />
+        </el-form-item>
+        <el-form-item label="生日">
+            <el-form-item prop="birth">
+              <el-date-picker v-model="form.birth" type="date" placeholder="选择日期" style="width: 100%;" />
+            </el-form-item>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="handleSubmit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 
 </template>
 
 <script>
-import { getInfo } from '@/api/myInfo'
+import { getInfo, addInfo, deleteInfo, updateInfo } from '@/api/submitFn'
+import { jsonFormat } from '@/utils/jsonFormat'
 
 export default {
+  inject: ['reload'],
   data() {
     return {
+      loading: true,
       active: 0,
-      tableData: [],
-      ruleForm: {
-        id: '',
-        name: '',
-        username: '',
-        password: '',
-        check: '',
-        token: ''
-      },
+      tableData: {},
+      form: {},
       dialogVisible: false,
-      dialogVisible2: false,
       reCheck: '',
       changeId: ''
     }
   },
   async mounted() {
-    await getInfo().then(res => {
-      this.tableData = res.data
-    })
+    const username = this.$store.state.user.username
+    const query = 'db.collection("adminUsers").where({username:' + JSON.stringify(username) + '}).get()'
+    const res = await getInfo(query)
+    const data = jsonFormat(res)
+    this.tableData = data
+    this.loading = false
   },
   methods: {
     //生成ID
@@ -60,73 +92,28 @@ export default {
       this.ruleForm.id = maxId + 1
       return maxId + 1
     },
-    handleEdit(index, row) {
-      this.dialogVisible2 = true
-      this.changeId = row.id
-      // this.ruleForm.username = this.tableData[index].username
-      this.ruleForm.password = this.tableData[index].password
-      // this.ruleForm.token = this.tableData[index].token
-      console.log(this.changeId);
-      
-    },
-    handleDelete(index, row) {
-      this.$confirm('确认删除？')
-          .then(_ => {
-            console.log(row.id);
-            const data = {
-              id: row.id
-            }
-            submitDelete(data).then(res=>{
-              if(res.code === 20000){
-                this.$message({
-                  type: 'success',
-                  message: '删除成功'
-                })
-                setTimeout(()=>{
-                this.$router.go(0)
-              },1000)
-              }
-            })
-            done()
-          })
-          .catch(_ => {})
-      
-    },
-    handleAdd(){
+    handleEdit() {
+      this.form = this.tableData
       this.dialogVisible = true
     },
-    handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            this.dialogVisible2 = false
-            this.resetForm('ruleForm')
-            done()
-          })
-          .catch(_ => {})
+    async handleSubmit(){
+      const query = 'db.collection("adminUsers").where({id:' + JSON.stringify(this.form.id) + '}).update({data:' + JSON.stringify(this.form) + '})'
+        const res = await updateInfo(query)
+        if (res.status == 200) {
+          this.$message.success('修改成功')
+          this.reload()
+        } else {
+          this.$message.error('修改失败')
+        }
     },
-    submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.dialogVisible = false
-            submitInfo(this.ruleForm).then(res=>{
-              this.$message({
-                type: 'success',
-                message: '操作成功'
-              })
-              setTimeout(()=>{
-                this.$router.go(0)
-              },1000)
-            })
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.dialogVisible = false
+          done()
         })
-      },
-      resetForm(formName) {
-        this.$refs[formName].resetFields();
-        this.dialogVisible = false
-      }
+        .catch(_ => {})
+    }
   },
   watch: {
     //监听修改密码操作一半时退出，将步骤重置
@@ -142,7 +129,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$bg:#283443;
+$bg:#0a2749;
 $light_gray:#fff;
 $cursor: #fff;
   .text {

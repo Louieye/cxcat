@@ -62,19 +62,19 @@ const actions = {
       }
       const submitData = JSON.stringify(data)
       console.log(submitData);
+      console.log('登录')
       
       login(submitData).then(response => {
         const res = JSON.parse(response.data.data)
-        console.log('登录信息：', res)
         if(res.password != password){
-          reject('用户名或密码错误')
+          reject('密码错误')
         }
         commit('SET_TOKEN', res.token)
         commit('SET_USERNAME', username)
         setToken(res.token)
         resolve()
       }).catch(error => {
-        reject(error)
+        reject('用户名不存在')
       })
     })
   },
@@ -96,12 +96,13 @@ const actions = {
           reject('Verification failed, please Login again.')
         }
 
-        const { name, avatar, roles } = data
+        const { name, avatar, roles, username } = data
         console.log('getinfo返回值',data);
         
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         commit('SET_ROLES', roles)
+        commit('SET_USERNAME', username)
         console.log(state);
         
         resolve(data)

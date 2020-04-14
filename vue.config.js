@@ -37,6 +37,13 @@ module.exports = {
       errors: true
     },
     proxy: {
+      '/doUpload': { // 使用"/api"来代替"http://f.apiplus.c"
+        target: 'https://cos.ap-shanghai.myqcloud.com/6c79-lyj-app-1301672818/', // 源地址
+        changeOrigin: true, // 改变源
+        pathRewrite: {
+          '^/doUpload': '' // 路径重写
+        }
+      },
       '/dev': { // 使用"/api"来代替"http://f.apiplus.c"
         target: 'https://api.weixin.qq.com/', // 源地址
         changeOrigin: true, // 改变源

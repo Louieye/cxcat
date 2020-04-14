@@ -73,6 +73,12 @@ export const constantRoutes = [
         name: 'Tree',
         component: () => import('@/views/course-manage/test'),
         meta: { title: '小测验', icon: 'ceshishenqing' }
+      },
+      {
+        path: 'students',
+        name: 'students',
+        component: () => import('@/views/course-manage/student'),
+        meta: { title: '学生管理', icon: 'student' }
       }
     ]
   },
@@ -199,13 +205,7 @@ export const asyncRoutes = [
         path: 'all-course',
         name: 'all-course',
         component: () => import('@/views/my-table/all'),
-        meta: { title: '全部课表', icon: 'biaodanzujian-biaoge' }
-      },
-      {
-        path: 'course-edit',
-        name: 'course-edit',
-        component: () => import('@/views/my-table/course-edit'),
-        meta: { title: '课表管理', icon: 'bianji' }
+        meta: { title: '全部课表', icon: 'biaoge' }
       }
     ]
   },

@@ -80,11 +80,12 @@
       </el-table-column>
       <el-table-column
         label="操作"
-        width="170"
+        width="230"
       >
         <template slot-scope="scope">
           <el-button type="success" icon="el-icon-check" circle @click="handleCheck(scope.$index, scope.row)" />
           <el-button type="primary" icon="el-icon-edit" circle @click="handleEdit(scope.row)" />
+          <el-button type="warning" icon="el-icon-s-check" circle @click="submitInfo(scope.row)"></el-button>
           <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row)" />
         </template>
       </el-table-column>
@@ -115,7 +116,7 @@
 </template>
 
 <script>
-import { getInfo, deleteInfo, updateInfo } from '@/api/submitFn'
+import { getInfo, deleteInfo, updateInfo, addInfo } from '@/api/submitFn'
 import { jsonFormat } from '@/utils/jsonFormat'
 
 export default {
@@ -251,6 +252,30 @@ export default {
         }
       })
       this.notCheck = sum
+    },
+    async submitInfo(row){
+      const data = this.tableData.find(item => item._id == row._id)
+      const info = {
+        _openid: data._openid,
+        name: data.name,
+        phone: data.phone,
+        childName: data.childName,
+        childAge: data.childAge,
+        classId: []
+      }
+      const query = 'db.collection("students").add({data:[' + JSON.stringify(info) + ']})'
+      const res = await addInfo(query)
+      if (res.status == 200) {
+          this.dialogVisible = false
+          this.$message.success('添加成功')
+          const query = 'db.collection("appointment").where({_id:' + JSON.stringify(row._id) + '}).remove()'
+          deleteInfo(query).then(res=>{
+            this.reload()
+          })
+        } else {
+          this.dialogVisible = false
+          this.$message.error('添加失败')
+        }
     }
   }
 }

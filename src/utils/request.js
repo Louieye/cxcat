@@ -57,7 +57,7 @@ service.interceptors.response.use(
     console.log('【返回数据】', res)
 
     if (res.data.errcode && res.data.errcode !=0) {
-      if(res.data.errcode == 42001){
+      if(res.data.errcode == 42001 || 40001){
         store.dispatch('user/getAccessToken').then(() => {
           location.reload()
         })

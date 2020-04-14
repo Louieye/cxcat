@@ -296,6 +296,7 @@ export default {
         .then(_ => {
           this.dialogVisible = false
           this.isEdit = false
+          this.reload()
           done()
         })
         .catch(_ => {})

@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import axios from 'axios'
 import store from '@/store'
 
 // 操作云服务器
@@ -59,6 +60,46 @@ export function deleteInfo(query) {
     url: 'tcb/databasedelete?access_token=' + access_token,
     method: 'post',
     data: JSON.stringify(list)
+  })
+}
+
+// 获取上传链接
+export function getUploadUrl(path) {
+  const list = {
+    env: 'lyj-app',
+    path: path
+  }
+  const access_token = store.getters.access_token
+  return request({
+    url: 'tcb/uploadfile?access_token=' + access_token,
+    method: 'post',
+    data: JSON.stringify(list)
+  })
+}
+
+// 上传文件
+export function uploadFile(url, data) {
+  const upload = axios.create({
+    baseURL: '/doUpload', // url = base url + request url
+    timeout: 5000, // request timeout
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+  return upload({
+    url: url,
+    method: 'post',
+    data
+  })
+}
+
+// 触发云函数
+export function invokeCloudFunction(fnName, data) {
+  const access_token = store.getters.access_token
+  return request({
+    url: 'tcb/invokecloudfunction?access_token=' + access_token + '&env=lyj-app&name=' + fnName,
+    method: 'post',
+    data: JSON.stringify(data)
   })
 }
 
