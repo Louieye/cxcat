@@ -24,8 +24,8 @@ export default {
   },
   data() {
     return {
-      title: 'CxCat 后台管理平台',
-      logo: 'https://wpimg.wallstcn.com/69a1c46c-eb1c-4b46-8bd4-e9e686ef5251.png'
+      title: '程序猫 后台管理平台',
+      logo: 'https://6c79-lyj-app-1301672818.tcb.qcloud.la/icon/logo.png?sign=2094ead2ede97e39b18b6b4c61070ec7&t=1587719708'
     }
   }
 }
@@ -76,6 +76,9 @@ export default {
   &.collapse {
     .sidebar-logo {
       margin-right: 0px;
+      border: 1px solid black;
+      border-radius: 50%;
+      overflow: hidden;
     }
   }
 }

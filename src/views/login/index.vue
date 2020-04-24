@@ -44,8 +44,7 @@
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
 
       <div class="tips">
-        <!-- <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span> -->
+        <span>程序猫后台管理平台</span>
       </div>
 
     </el-form>
@@ -74,8 +73,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '123456'
+        username: '',
+        password: ''
       },
       loginRules: {
         username: [{ min: 3, max: 12, message: '用户名长度在 3 到 12 个字符', trigger: 'blur' }],
@@ -197,9 +196,9 @@ $light_gray:#eee;
 
   .tips {
     font-size: 14px;
-    color: #fff;
+    color: rgb(218, 218, 218);
     margin-bottom: 10px;
-
+    text-align: center;
     span {
       &:first-of-type {
         margin-right: 16px;

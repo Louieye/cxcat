@@ -3,15 +3,31 @@
     <el-button type="primary" class="addButton" @click="handleAdd">添加</el-button>
     <el-table
       ref="filterTable"
-      :data="tableData"
-      style="width: 95%"
       v-loading="loading"
+      :data="tableData.filter(data => !search || data.id == search)"
+      style="width: 95%"
     >
-    <el-table-column
+      <el-table-column
         prop="id"
         label="课程ID"
         sortable
         column-key="id"
+      >
+        <template slot="header" slot-scope="scope">
+          ID
+          <el-input
+            v-model="search"
+            size="mini"
+            placeholder="输入ID搜索"
+            class="searchInput"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="lesson"
+        label="课时"
+        sortable
+        column-key="lesson"
       />
       <el-table-column
         prop="date"
@@ -83,6 +99,9 @@
         <el-form-item label="课程名" prop="course">
           <el-input v-model="form.course" />
         </el-form-item>
+        <el-form-item label="课时" prop="lesson">
+          <el-input v-model="form.lesson" />
+        </el-form-item>
         <el-form-item label="内容" prop="desc">
           <el-input v-model="form.desc" type="textarea" />
         </el-form-item>
@@ -115,12 +134,14 @@ export default {
     return {
       loading: true,
       isAdd: false,
+      search: '',
       dialogVisible: false,
       cardShow: false,
       tableData: [],
       desc: '',
       form: {
         id: '',
+        lesson: '',
         course: '',
         date: '',
         desc: '',
@@ -133,10 +154,10 @@ export default {
     const res = await getInfo(query)
     const data = jsonFormat(res)
     const roles = this.$store.state.user.roles
-    if(roles !='admin'){
+    if (roles != 'admin') {
       const name = this.$store.state.user.name
       this.tableData = data.filter(item => item.teacher === name)
-    }else{
+    } else {
       this.tableData = data
     }
     this.loading = false
@@ -151,12 +172,12 @@ export default {
         })
         .catch(_ => {})
     },
-    Close(){
+    Close() {
       this.dialogVisible = false
       this.resetForm()
     },
     handleEdit(index, row) {
-      this.form = this.tableData.find(item=> item.id === row.id)
+      this.form = this.tableData.find(item => item.id === row.id)
       this.dialogVisible = true
       this.cardShow = false
     },
@@ -166,20 +187,20 @@ export default {
           // this.tableData.find(item=>item.id === row.id).tag = '未提交'
           this.cardShow = false
           const query = 'db.collection("reply").where({id:' + JSON.stringify(row.id) + '}).remove()'
-            deleteInfo(query).then(res => {
-              if (res.status == 200) {
-                this.$message({
-                  type: 'success',
-                  message: '删除成功'
-                })
-                this.reload()
-              } else {
-                this.$message({
-                  type: 'error',
-                  message: '删除失败'
-                })
-              }
-            })
+          deleteInfo(query).then(res => {
+            if (res.status == 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.reload()
+            } else {
+              this.$message({
+                type: 'error',
+                message: '删除失败'
+              })
+            }
+          })
         })
         .catch(_ => {})
     },
@@ -193,17 +214,17 @@ export default {
       const date = new Date().getTime()
       this.form.date = formatDate(date)
       this.form.teacher = this.$store.state.user.name
-      if(this.isAdd == false){
-      const query = 'db.collection("reply").where({id:' + JSON.stringify(this.form.id) + '}).update({data:' + JSON.stringify(this.form) + '})'
-      const res = await updateInfo(query)
-      this.dialogVisible = false
-      if (res.status == 200) {
-        this.$message.success('修改成功')
-        this.reload()
+      if (this.isAdd == false) {
+        const query = 'db.collection("reply").where({id:' + JSON.stringify(this.form.id) + '}).update({data:' + JSON.stringify(this.form) + '})'
+        const res = await updateInfo(query)
+        this.dialogVisible = false
+        if (res.status == 200) {
+          this.$message.success('修改成功')
+          this.reload()
+        } else {
+          this.$message.error('修改失败')
+        }
       } else {
-        this.$message.error('修改失败')
-      }
-      }else{
         const query = 'db.collection("reply").add({data:[' + JSON.stringify(this.form) + ']})'
         const res = await addInfo(query)
         if (res.status == 200) {
@@ -222,6 +243,7 @@ export default {
     resetForm() {
       this.form = {
         id: '',
+        lesson: '',
         course: '',
         date: '',
         desc: '',
@@ -234,7 +256,7 @@ export default {
     },
     showCard(index, row) {
       this.cardShow = true
-      this.desc = this.tableData.find(item=> item.id === row.id).desc
+      this.desc = this.tableData.find(item => item.id === row.id).desc
     }
   }
 }
@@ -293,5 +315,8 @@ export default {
   }
   .hidden {
     display: none;
+  }
+  .searchInput {
+        width: 70%;
   }
 </style>
