@@ -5,7 +5,7 @@
       @click="handleAdd"
     ><i class="el-icon-circle-plus-outline" />  添加</el-button>
     <el-table
-    v-loading="loading"
+      v-loading="loading"
       style="width: 100%"
       :data="tableData.filter(data => !search || data.id === search)"
     >
@@ -30,7 +30,8 @@
       <el-table-column
         label="ID"
         prop="id"
-        width="150px">
+        width="150px"
+      >
         <template slot="header" slot-scope="scope">
           ID
           <el-input
@@ -134,24 +135,24 @@ export default {
     // 删除方法
     handleDelete(row) {
       this.$confirm('确认删除？')
-          .then(_ => {
-            const query = 'db.collection("test").where({id:' + JSON.stringify(row.id) + '}).remove()'
-            deleteInfo(query).then(res => {
-              if (res.status == 200) {
-                this.$message({
-                  type: 'success',
-                  message: '删除成功'
-                })
-                this.reload()
-              } else {
-                this.$message({
-                  type: 'error',
-                  message: '删除失败'
-                })
-              }
-            })
+        .then(_ => {
+          const query = 'db.collection("test").where({id:' + JSON.stringify(row.id) + '}).remove()'
+          deleteInfo(query).then(res => {
+            if (res.status == 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.reload()
+            } else {
+              this.$message({
+                type: 'error',
+                message: '删除失败'
+              })
+            }
           })
-          .catch(_ => {})
+        })
+        .catch(_ => {})
     },
     // 关闭dialog
     handleClose() {
@@ -165,7 +166,7 @@ export default {
     // 添加表单请求
     async addTable(data) {
       const newTest = this.add(data)
-      if(this.isEdit == false){
+      if (this.isEdit == false) {
         const query = 'db.collection("test").add({data:[' + JSON.stringify(newTest) + ']})'
         const res = await addInfo(query)
         if (res.status == 200) {
@@ -176,7 +177,7 @@ export default {
           this.dialogVisible = false
           this.$message.error('添加失败')
         }
-      }else {
+      } else {
         const query = 'db.collection("test").where({id:' + JSON.stringify(newTest.id) + '}).update({data:' + JSON.stringify(newTest) + '})'
         const res = await updateInfo(query)
         if (res.status == 200) {

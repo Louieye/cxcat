@@ -10,19 +10,18 @@ export function getAccessToken() {
 
 export function login(data) {
   const access_token = store.getters.access_token
-  if(!access_token){
-    store.dispatch('user/getAccessToken').then(()=>{
-      console.log('api设置access');
-      console.log('api返回');
+  if (!access_token) {
+    store.dispatch('user/getAccessToken').then(() => {
+      console.log('api设置access')
       return request({
-        url: 'tcb/databasequery?access_token=' + access_token,
+        url: 'tcb/invokecloudfunction?access_token=' + access_token + '&env=lyj-app&name=doAdminLogin',
         method: 'post',
         data
       })
     })
-  }else{
+  } else {
     return request({
-      url: 'tcb/databasequery?access_token=' + access_token,
+      url: 'tcb/invokecloudfunction?access_token=' + access_token + '&env=lyj-app&name=doAdminLogin',
       method: 'post',
       data
     })

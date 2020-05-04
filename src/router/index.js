@@ -66,13 +66,13 @@ export const constantRoutes = [
         path: 'table',
         name: 'Table',
         component: () => import('@/views/course-manage/reply'),
-        meta: { title: '课程小结', icon: 'shiyongwendang' }
+        meta: { title: '课程反馈', icon: 'shiyongwendang' }
       },
       {
         path: 'tree',
         name: 'Tree',
         component: () => import('@/views/course-manage/test'),
-        meta: { title: '小测验', icon: 'ceshishenqing' }
+        meta: { title: '小测验管理', icon: 'ceshishenqing' }
       },
       {
         path: 'students',
@@ -225,23 +225,17 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/orders',
+    path: '/address',
     component: Layout,
-    redirect: '/orders/my-orders',
-    name: 'orders',
-    meta: { title: '订单管理', icon: 'form' },
+    redirect: '/address/index',
+    name: 'address',
+    meta: { title: '地址管理', icon: 'form' },
     children: [
       {
-        path: 'my',
-        name: 'my',
-        component: () => import('@/views/orders/my'),
-        meta: { title: '我的订单', icon: 'example' }
-      },
-      {
-        path: 'history',
-        name: 'history',
-        component: () => import('@/views/orders/history'),
-        meta: { title: '历史订单', icon: 'example' }
+        path: 'index',
+        name: 'index',
+        component: () => import('@/views/address/index'),
+        meta: { title: '地址管理', icon: 'example' }
       }
     ]
   },

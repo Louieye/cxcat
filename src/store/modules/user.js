@@ -53,28 +53,31 @@ const mutations = {
 
 const actions = {
   // user login
-  login({ commit }, userInfo ) {
+  login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       const data = {
-        env: 'lyj-app',
-        query: 'db.collection(\"adminUsers\").where({username:\"' + username + '\"}).get()'
+        username: username,
+        password: password
       }
       const submitData = JSON.stringify(data)
-      console.log(submitData);
-      console.log('登录')
-      
-      login(submitData).then(response => {
-        const res = JSON.parse(response.data.data)
-        if(res.password != password){
-          reject('密码错误')
+      login(submitData).then(res => {
+        if (res.data.errcode != 0) {
+          reject('服务器错误')
         }
-        commit('SET_TOKEN', res.token)
-        commit('SET_USERNAME', username)
-        setToken(res.token)
-        resolve()
+        const data = JSON.parse(res.data.resp_data)
+        if (data.flag == '0') {
+          reject('密码错误')
+        } else if (data.flag == '-1') {
+          reject('用户名不存在')
+        } else if (data.flag == '1') {
+          commit('SET_TOKEN', data.token)
+          commit('SET_USERNAME', username)
+          setToken(data.token)
+          resolve()
+        }
       }).catch(error => {
-        reject('用户名不存在')
+        reject('未知错误')
       })
     })
   },
@@ -88,23 +91,22 @@ const actions = {
       }
       const submitData = JSON.stringify(data)
       getInfo(submitData).then(response => {
-
         const data = JSON.parse(response.data.data)
-        console.log('getinfo',data);
-        
+        console.log('getinfo', data)
+
         if (!data) {
           reject('Verification failed, please Login again.')
         }
 
         const { name, avatar, roles, username } = data
-        console.log('getinfo返回值',data);
-        
+        console.log('getinfo返回值', data)
+
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         commit('SET_ROLES', roles)
         commit('SET_USERNAME', username)
-        console.log(state);
-        
+        console.log(state)
+
         resolve(data)
       }).catch(error => {
         reject('getinfo出错：')

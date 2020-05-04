@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'CxCat后台管理平台',
+  title: '程序猫后台管理平台',
 
   /**
    * @type {boolean} true | false

@@ -87,6 +87,7 @@
             <el-option label="scratch" value="scratch" />
             <el-option label="python" value="python" />
             <el-option label="C++" value="C++" />
+            <el-option label="其他" value="其他" />
           </el-select>
         </el-form-item>
         <el-form-item label="教师" prop="teacher">
@@ -208,6 +209,10 @@ export default {
       this.isEdit = true
     },
     handleSubmit() {
+      const startDate = JSON.parse(JSON.stringify(this.form.startDate)).split('T')
+      const endDate = JSON.parse(JSON.stringify(this.form.endDate)).split('T')
+      this.form.startDate = startDate[0]
+      this.form.endDate = endDate[0]
       this.$refs['form'].validate(async(valid) => {
         if (valid) {
           if (this.isEdit == true) {
