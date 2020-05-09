@@ -2,7 +2,7 @@
   <div class="mainBox">
 <el-card class="box-card" v-loading="loading">
     <div class="img">
-        <img src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif" alt="">
+        <img :src="tableData.avatar" alt="">
     </div>
     <h3 class="name">{{ tableData.name }}</h3>
     <div class="button">
@@ -46,6 +46,9 @@
               <el-date-picker v-model="form.birth" type="date" placeholder="选择日期" style="width: 100%;" />
             </el-form-item>
         </el-form-item>
+        <el-form-item label="头像URL" prop="avatar">
+          <el-input v-model="form.avatar" />
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">取 消</el-button>
@@ -73,13 +76,15 @@ export default {
       changeId: ''
     }
   },
-  async mounted() {
-    const username = this.$store.state.user.username
-    const query = 'db.collection("adminUsers").where({username:' + JSON.stringify(username) + '}).get()'
-    const res = await getInfo(query)
-    const data = jsonFormat(res)
-    this.tableData = data
-    this.loading = false
+  mounted() {
+    this.$nextTick(async()=>{
+      const username = this.$store.state.user.username
+      const query = 'db.collection("adminUsers").where({username:' + JSON.stringify(username) + '}).get()'
+      const res = await getInfo(query)
+      const data = jsonFormat(res)
+      this.tableData = data
+      this.loading = false
+    })
   },
   methods: {
     //生成ID
@@ -93,7 +98,7 @@ export default {
       return maxId + 1
     },
     handleEdit() {
-      this.form = this.tableData
+      this.form = JSON.parse(JSON.stringify(this.tableData))
       this.dialogVisible = true
     },
     async handleSubmit(){
