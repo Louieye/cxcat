@@ -255,8 +255,9 @@ export default {
       this.isAdd = true
     },
     showCard(index, row) {
-      this.cardShow = true
-      this.desc = this.tableData.find(item => item.id === row.id).desc
+      // this.cardShow = true
+      // this.desc = this.tableData.find(item => item.id === row.id).desc
+      this.$router.push({ name: 'Look', params: { reply: row }})
     }
   }
 }

@@ -66,7 +66,7 @@ export const constantRoutes = [
         path: 'table',
         name: 'Table',
         component: () => import('@/views/course-manage/reply'),
-        meta: { title: '课程反馈', icon: 'shiyongwendang' }
+        meta: { title: '课程反馈', icon: 'shiyongwendang' },
       },
       {
         path: 'tree',
@@ -79,6 +79,13 @@ export const constantRoutes = [
         name: 'students',
         component: () => import('@/views/course-manage/student'),
         meta: { title: '学生管理', icon: 'student' }
+      },
+      {
+        path: 'look',
+        name: 'Look',
+        component: () => import('@/views/course-manage/look'),
+        hidden: true,
+        meta: { title: '内容查看', icon: 'shiyongwendang' }
       }
     ]
   },

@@ -56,6 +56,9 @@
         <el-form-item label="纬度" prop="longitude">
           <el-input v-model="form.longitude" />
         </el-form-item>
+        <el-form-item label="">
+            <el-link href="https://lbs.amap.com/console/show/picker" target="_blank" type="primary">点击前往高德获取经纬度</el-link>
+          </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">取 消</el-button>
