@@ -83,10 +83,18 @@
         width="230"
       >
         <template slot-scope="scope">
-          <el-button type="success" icon="el-icon-check" circle @click="handleCheck(scope.$index, scope.row)" />
-          <el-button type="primary" icon="el-icon-edit" circle @click="handleEdit(scope.row)" />
-          <el-button type="warning" icon="el-icon-s-check" circle @click="submitInfo(scope.row)"></el-button>
-          <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row)" />
+          <el-tooltip effect="dark" content="确认预约" placement="top">
+            <el-button type="success" icon="el-icon-check" circle @click="handleCheck(scope.$index, scope.row)" />
+          </el-tooltip>
+          <el-tooltip effect="dark" content="修改信息" placement="top">
+            <el-button type="primary" icon="el-icon-edit" circle @click="handleEdit(scope.row)" />
+          </el-tooltip>
+          <el-tooltip effect="dark" content="确认报班" placement="top">
+            <el-button type="warning" icon="el-icon-s-check" circle @click="submitInfo(scope.row)"></el-button>
+          </el-tooltip>
+          <el-tooltip effect="dark" content="删除预约" placement="top">
+            <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row)" />
+          </el-tooltip>
         </template>
       </el-table-column>
     </el-table>

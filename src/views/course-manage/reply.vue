@@ -10,7 +10,6 @@
       <el-table-column
         prop="id"
         label="课程ID"
-        sortable
         column-key="id"
       >
         <template slot="header" slot-scope="scope">

@@ -69,6 +69,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="page">
+      <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage4"
+      :page-sizes="[10, 20, 30, 40]"
+      :page-size="10"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+    </div>
     <el-dialog
       title="添加/编辑课表"
       :visible.sync="dialogVisible"
@@ -152,6 +163,7 @@ export default {
       isEdit: false, // 判断是添加还是修改
       dialogVisible: false,
       loading: true,
+      total: 0,
       form: {
         id: '',
         name: '',
@@ -199,6 +211,7 @@ export default {
         item.date = item.startDate + '~' + item.endDate
       })
       this.tableData = table
+      this.total = this.tableData.length
     }
     this.loading = false
   },
@@ -313,7 +326,13 @@ export default {
       })
       const maxId = Math.max(...ids)
       return maxId + 1
-    }
+    },
+    handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+      }
   }
 }
 </script>
@@ -329,6 +348,8 @@ export default {
     }
     .el-table {
         margin: 0 auto;
+        height: auto;
+        min-height: 400px;
     }
     .line{
         padding-left: 15px;
@@ -337,5 +358,10 @@ export default {
         margin-top: 2%;
         margin-bottom: 1%;
         margin-left: 2.5%;
+    }
+    .page {
+      margin-top: 15px;
+      margin-right: 10px;
+      text-align: right;
     }
 </style>
